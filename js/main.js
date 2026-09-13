@@ -68,7 +68,7 @@
 
   function tick() {
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = '#4CFF9E';
+    ctx.fillStyle = '#e8e8e6';
 
     particles.forEach(p => {
       p.y -= p.speed;
