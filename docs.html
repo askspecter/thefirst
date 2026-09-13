@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRAVE — Documentation</title>
+<meta name="description" content="GRAVE Protocol documentation: get started, create your onchain will, deposit RWA Stock Tokens, check in, execute, and claim. Full contract and network reference.">
+<link rel="icon" href="assets/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/docs.css">
+</head>
+<body class="doc-body">
+
+<div class="noise-overlay"></div>
+
+<!-- ================= NAV ================= -->
+<header class="nav scrolled" id="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark" aria-hidden="true"><img src="assets/logo.png" alt="" width="34" height="34"></span>
+      <span class="brand-name">GRAVE</span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="docs.html">Docs</a>
+      <a href="/#architecture">Architecture</a>
+      <a href="/#faq">FAQ</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="whitepaper.html" class="btn btn-ghost">Whitepaper</a>
+      <a href="https://app.grave.cash/" class="btn btn-primary"><span>Launch App</span></a>
+      <button class="nav-burger" id="navBurger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= DOC SUBNAV ================= -->
+<div class="doc-subnav">
+  <div class="doc-subnav-inner">
+    <a href="whitepaper.html">Whitepaper</a>
+    <a href="docs.html" class="active">Documentation</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Use</a>
+  </div>
+</div>
+
+<!-- ================= HERO ================= -->
+<section class="doc-hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="container">
+    <span class="doc-eyebrow"><span class="dot-live"></span> Documentation</span>
+    <h1>Build your immortal will.</h1>
+    <p class="lead">Everything you need to create a GRAVE Vault, lock ETH and RWA Stock Tokens, keep it
+      alive with proof-of-life check-ins, and let your beneficiaries claim — plus a full contract and
+      network reference for developers.</p>
+    <div class="doc-meta">
+      <span><strong>Network</strong> Robinhood Chain</span>
+      <span><strong>Wallets</strong> Reown AppKit · 80+ wallets</span>
+      <span><strong>Contracts</strong> GraveFactory · GraveVault</span>
+    </div>
+  </div>
+</section>
+
+<div class="doc-shell">
+  <!-- ---------- TOC ---------- -->
+  <aside class="doc-toc" aria-label="Table of contents">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#quickstart">Quick start</a></li>
+      <li><a href="#connect" class="sub">Connect a wallet</a></li>
+      <li><a href="#network" class="sub">Add the network</a></li>
+      <li><a href="#create">Create a will</a></li>
+      <li><a href="#deposit">Deposit assets</a></li>
+      <li><a href="#checkin">Check in</a></li>
+      <li><a href="#execute">Execution &amp; claims</a></li>
+      <li><a href="#manage">Manage your vault</a></li>
+      <li><a href="#reference">Network reference</a></li>
+      <li><a href="#contracts">Contract reference</a></li>
+      <li><a href="#deploy">Deploy the factory</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </aside>
+
+  <!-- ---------- ARTICLE ---------- -->
+  <article class="doc-article">
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p class="section-lead">GRAVE is a non-custodial last-will protocol on Robinhood Chain. You lock
+        assets in a vault only you can move; if you stop checking in, your beneficiaries claim their
+        shares — no probate, no custodian, no admin key.</p>
+      <p>This guide walks through the full user journey in the GRAVE dApp, then provides the network and
+        contract reference developers need to integrate or verify the protocol directly. For the
+        design rationale and security model, read the
+        <a class="inline" href="whitepaper.html">whitepaper</a>.</p>
+      <div class="callout">
+        <span class="callout-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 8V13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 16V16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        <p>Each owner address controls exactly <strong>one</strong> vault. The factory maps your address
+          to your vault, so re-connecting the same wallet always returns you to the same will.</p>
+      </div>
+    </section>
+
+    <section id="quickstart">
+      <h2>Quick start</h2>
+      <p>Five steps take you from a fresh wallet to a fully funded, self-executing will:</p>
+      <ol>
+        <li><strong>Connect</strong> a wallet and switch to Robinhood Chain.</li>
+        <li><strong>Create</strong> your vault: set a check-in interval, a grace period, beneficiaries, and optional guardians.</li>
+        <li><strong>Deposit</strong> ETH and RWA Stock Tokens into your vault.</li>
+        <li><strong>Check in</strong> on schedule to prove you are alive and reset the countdown.</li>
+        <li>If check-ins ever stop past the deadline, anyone can <strong>execute</strong> and your beneficiaries <strong>claim</strong>.</li>
+      </ol>
+
+      <h3 id="connect">Connect a wallet</h3>
+      <p>The dApp uses <strong>Reown AppKit</strong> (WalletConnect) — a multi-wallet modal supporting
+        Trust, MetaMask, Binance, SafePal and 80+ wallets, including mobile via QR code and deeplink. If
+        AppKit cannot load, the dApp automatically falls back to a basic injected-wallet connection.</p>
+      <ol>
+        <li>Open <a class="inline" href="https://app.grave.cash/">app.grave.cash</a> and click <strong>Connect</strong>.</li>
+        <li>Pick your wallet from the modal (or scan the QR with a mobile wallet).</li>
+        <li>Approve the connection request in your wallet.</li>
+      </ol>
+
+      <h3 id="network">Add the network</h3>
+      <p>If your wallet is not yet on Robinhood Chain, the dApp will prompt you to add and switch
+        networks. Approve the request, or add it manually with the values in the
+        <a class="inline" href="#reference">network reference</a> below. Gas is paid in ETH.</p>
+    </section>
+
+    <section id="create">
+      <h2>Create a will</h2>
+      <p>Creating a vault deploys your own <code>GraveVault</code> contract through the factory. You set
+        four things:</p>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>What it means</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Check-in interval</strong></td><td>How long you may go silent before the grace period starts. Choose a cadence you can comfortably keep (e.g. monthly, quarterly).</td></tr>
+            <tr><td><strong>Grace period</strong></td><td>An extra buffer after the interval. A single check-in during this window resets everything, so give yourself room for travel or illness.</td></tr>
+            <tr><td><strong>Beneficiaries</strong></td><td>Addresses and their shares in basis points. All shares must sum to exactly 10,000 (100%).</td></tr>
+            <tr><td><strong>Guardians</strong> <em>(optional)</em></td><td>Trusted addresses allowed only to check in on your behalf. They can never withdraw, redirect, or trigger execution.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <span class="callout-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 7l8-4 8 4v5c0 5-3.5 8.5-8 9.5C7.5 20.5 4 17 4 12V7Z" stroke="currentColor" stroke-width="1.6"/></svg>
+        </span>
+        <p>Shares are expressed in <strong>basis points</strong>: 5,000 bps = 50%, 2,500 bps = 25%. The
+          dApp validates that your allocation sums to 10,000 before letting you submit.</p>
+      </div>
+    </section>
+
+    <section id="deposit">
+      <h2>Deposit assets</h2>
+      <p>Your vault can hold ETH and any ERC-20 — including RWA Stock Tokens — that you deposit.</p>
+      <h3>ETH</h3>
+      <p>Send ETH directly to your vault address, or use the deposit control in the dApp. The vault's
+        <code>receive()</code> function accepts ETH and emits a <code>Deposited</code> event.</p>
+      <h3>RWA Stock Tokens &amp; ERC-20s</h3>
+      <p>Depositing a token is a two-step flow: first <code>approve</code> the vault to move the amount,
+        then call <code>depositToken(token, amount)</code>, which pulls the tokens in and tracks them.
+        The dApp offers curated Stock Token shortcuts in the deposit panel, and any ERC-20 address also
+        works via manual entry.</p>
+      <pre><code><span class="c">// 1) Approve the vault on the token</span>
+token.approve(vault, amount);
+
+<span class="c">// 2) Pull the tokens into the vault (owner only, while active)</span>
+vault.depositToken(token, amount);</code></pre>
+      <div class="callout warn">
+        <span class="callout-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3L22 20H2L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10V14M12 17V17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <p>If you transfer a token directly to the vault (without <code>depositToken</code>), call
+          <code>trackToken(token)</code> so it is included in the execution snapshot. Untracked tokens
+          are not distributed to beneficiaries.</p>
+      </div>
+    </section>
+
+    <section id="checkin">
+      <h2>Check in</h2>
+      <p>A check-in is your proof of life. Calling <code>checkIn()</code> stamps the current time and
+        resets the countdown to the full interval plus grace period. You can check in any time — early
+        is fine — and you can do it as often as you like.</p>
+      <ul>
+        <li>The <strong>owner</strong> can always check in.</li>
+        <li>Any <strong>guardian</strong> you appointed can also check in on your behalf.</li>
+        <li>The onchain <code>deadline()</code> and <code>isExpired()</code> views always show your current status.</li>
+      </ul>
+      <p>The dApp surfaces your next deadline and can remind you before your window closes. Keeping a
+        regular cadence is the single most important habit for a GRAVE owner.</p>
+    </section>
+
+    <section id="execute">
+      <h2>Execution &amp; claims</h2>
+      <p>If check-ins stop and <code>block.timestamp</code> passes the deadline, the vault becomes
+        expirable. From that point:</p>
+      <ol>
+        <li><strong>Anyone</strong> can call <code>execute()</code>. It flips the vault to executed and snapshots ETH and every tracked token balance.</li>
+        <li>Each <strong>beneficiary</strong> calls <code>claim()</code> once to pull their fixed share of ETH and every token: <code>snapshot × bps / 10,000</code>.</li>
+        <li><code>previewClaim(address)</code> shows what a beneficiary would receive before they claim.</li>
+      </ol>
+      <p>Because balances are frozen at execution, beneficiaries can claim independently and in any
+        order without affecting one another. Once executed, owner controls are permanently locked.</p>
+    </section>
+
+    <section id="manage">
+      <h2>Manage your vault</h2>
+      <p>While the vault is active and un-executed, the owner can adjust the will at any time:</p>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>Action</th><th>Function</th></tr></thead>
+          <tbody>
+            <tr><td>Change the schedule</td><td><code>setSchedule(interval, grace)</code></td></tr>
+            <tr><td>Update beneficiaries &amp; shares</td><td><code>setBeneficiaries(accounts, bps)</code></td></tr>
+            <tr><td>Add or remove a guardian</td><td><code>setGuardian(guardian, enabled)</code></td></tr>
+            <tr><td>Withdraw ETH</td><td><code>withdrawETH(amount, to)</code></td></tr>
+            <tr><td>Withdraw a token</td><td><code>withdrawToken(token, amount, to)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Updating the schedule also refreshes your last check-in, so changing your cadence never
+        accidentally shortens your current window.</p>
+    </section>
+
+    <section id="reference">
+      <h2>Network reference</h2>
+      <p>GRAVE runs on Robinhood Chain, an Arbitrum-Orbit L2. Gas is paid in ETH.</p>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>Network</th><th>Chain ID</th><th>RPC</th><th>Explorer</th></tr></thead>
+          <tbody>
+            <tr><td>Mainnet</td><td><code>4663</code></td><td><code>https://rpc.mainnet.chain.robinhood.com</code></td><td><code>robinhoodchain.blockscout.com</code></td></tr>
+            <tr><td>Testnet</td><td><code>46630</code></td><td><code>https://rpc.testnet.chain.robinhood.com/rpc</code></td><td><code>explorer.testnet.chain.robinhood.com</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Get testnet ETH at <code>faucet.testnet.chain.robinhood.com</code>. The deployed
+        <code>GraveFactory</code> on mainnet is <code>0x3Fa87f229c42d892a91f0DfeFC85c21F4cddd6A0</code>.</p>
+    </section>
+
+    <section id="contracts">
+      <h2>Contract reference</h2>
+      <p>The protocol is two contracts. Read the full source in <code>contracts/src/</code>.</p>
+
+      <h3>GraveFactory</h3>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>Function</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>createVault(interval, grace, accounts, bps, guardians)</code></td><td>Deploys the caller's vault and returns its address.</td></tr>
+            <tr><td><code>vaultOf(address) → address</code></td><td>Returns the vault for an owner (or zero if none).</td></tr>
+            <tr><td><code>vaultCount() → uint256</code></td><td>Total vaults deployed.</td></tr>
+            <tr><td><code>event VaultCreated(owner, vault)</code></td><td>Emitted on each deployment.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>GraveVault — owner</h3>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>Function</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>checkIn()</code></td><td>Proof of life. Owner or guardian; resets the countdown.</td></tr>
+            <tr><td><code>depositToken(token, amount)</code></td><td>Pull an approved ERC-20 into the vault and track it.</td></tr>
+            <tr><td><code>trackToken(token)</code></td><td>Register a token sent directly to the vault.</td></tr>
+            <tr><td><code>withdrawETH(amount, to)</code> / <code>withdrawToken(token, amount, to)</code></td><td>Owner withdrawals while active.</td></tr>
+            <tr><td><code>setSchedule(interval, grace)</code></td><td>Update the timing; refreshes last check-in.</td></tr>
+            <tr><td><code>setBeneficiaries(accounts, bps)</code></td><td>Replace the beneficiary set; shares must sum to 10,000.</td></tr>
+            <tr><td><code>setGuardian(guardian, enabled)</code></td><td>Add or remove a guardian.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>GraveVault — execution &amp; views</h3>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>Function</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>execute()</code></td><td>Permissionless once expired. Snapshots balances, opens claims.</td></tr>
+            <tr><td><code>claim()</code></td><td>A beneficiary pulls their fixed share, once.</td></tr>
+            <tr><td><code>previewClaim(account)</code></td><td>Preview a beneficiary's ETH + token amounts.</td></tr>
+            <tr><td><code>deadline()</code> / <code>isExpired()</code></td><td>Current expiry timestamp and status.</td></tr>
+            <tr><td><code>getBeneficiaries()</code> / <code>getTokens()</code></td><td>Read the beneficiary set and tracked tokens.</td></tr>
+            <tr><td><code>executed()</code> / <code>executedAt()</code></td><td>Execution status and timestamp.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="deploy">
+      <h2>Deploy the factory (developers)</h2>
+      <p>The factory is deployed with Foundry. Deploy once per network, then point the dApp config at
+        the printed address.</p>
+      <pre><code><span class="c"># from contracts/</span>
+forge install foundry-rs/forge-std
+<span class="k">export</span> PRIVATE_KEY=0x...            <span class="c"># a funded deployer key</span>
+
+<span class="c"># Testnet</span>
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url robinhood_testnet --broadcast --private-key $PRIVATE_KEY
+
+<span class="c"># Mainnet</span>
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url robinhood --broadcast --private-key $PRIVATE_KEY</code></pre>
+      <p>Copy the printed <code>GraveFactory</code> address into <code>js/config.js</code>
+        (<code>FACTORY.testnet</code> / <code>FACTORY.mainnet</code>), set your Reown project id in
+        <code>WALLETCONNECT_PROJECT_ID</code>, and allowlist your domain in the Reown dashboard.</p>
+    </section>
+
+    <section id="faq">
+      <h2>FAQ</h2>
+      <h3>Does GRAVE ever take custody of my assets?</h3>
+      <p>Never. Assets stay in a vault only you control until — and only until — your conditions are met
+        onchain. GRAVE has no admin key and cannot move your funds.</p>
+      <h3>What if I forget to check in?</h3>
+      <p>You get a grace period after your interval, and reminders before it closes. A single check-in
+        during the grace window resets everything. Guardians can also check in for you.</p>
+      <h3>Is a GRAVE will legally binding?</h3>
+      <p>GRAVE is a technical execution layer, not a law firm. It complements — not replaces — a legal
+        will. Consult local regulations for your jurisdiction.</p>
+      <h3>What if a beneficiary loses their wallet?</h3>
+      <p>Plan beneficiary wallets carefully; social-recovery flows are on the roadmap. See the
+        <a class="inline" href="whitepaper.html#threats">threat analysis</a> for detail.</p>
+    </section>
+
+    <!-- pager -->
+    <nav class="doc-pager" aria-label="More documents">
+      <a class="prev" href="whitepaper.html">
+        <span class="dir">↖ Read</span>
+        <span class="ttl">Whitepaper — Design &amp; security model</span>
+      </a>
+      <a class="next" href="terms.html">
+        <span class="dir">Next →</span>
+        <span class="ttl">Terms of Use</span>
+      </a>
+    </nav>
+  </article>
+</div>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="brand footer-brand-mark">
+        <img src="assets/logo.png" alt="" width="30" height="30">
+        <span class="brand-name">GRAVE</span>
+      </span>
+      <p>The first onchain last will protocol.<br>Built on Robinhood Chain.</p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Protocol</h4>
+        <a href="/#how">How it Works</a>
+        <a href="/#architecture">Architecture</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="whitepaper.html">Whitepaper</a>
+        <a href="docs.html">Documentation</a>
+        <a href="https://app.grave.cash/">Launch App</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Use</a>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <a href="https://x.com/gravedotcash" target="_blank" rel="noopener">X (@gravedotcash)</a>
+      </div>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <p>© 2026 GRAVE Protocol. All rights reserved.</p>
+    <p class="footer-disclaimer">GRAVE is experimental software provided as-is. Not legal, financial, or tax advice. Use at your own risk.</p>
+  </div>
+</footer>
+
+<script src="js/docs.js"></script>
+</body>
+</html>

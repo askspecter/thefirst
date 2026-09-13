@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRAVE — Whitepaper</title>
+<meta name="description" content="The GRAVE Protocol whitepaper: a non-custodial, fully onchain last-will protocol for ETH and RWA Stock Tokens on Robinhood Chain. Immutable vaults, proof-of-life, permissionless execution.">
+<link rel="icon" href="assets/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/docs.css">
+</head>
+<body class="doc-body">
+
+<div class="noise-overlay"></div>
+
+<!-- ================= NAV ================= -->
+<header class="nav scrolled" id="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark" aria-hidden="true"><img src="assets/logo.png" alt="" width="34" height="34"></span>
+      <span class="brand-name">GRAVE</span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="docs.html">Docs</a>
+      <a href="/#architecture">Architecture</a>
+      <a href="/#faq">FAQ</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="docs.html" class="btn btn-ghost">Docs</a>
+      <a href="https://app.grave.cash/" class="btn btn-primary"><span>Launch App</span></a>
+      <button class="nav-burger" id="navBurger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= DOC SUBNAV ================= -->
+<div class="doc-subnav">
+  <div class="doc-subnav-inner">
+    <a href="whitepaper.html" class="active">Whitepaper</a>
+    <a href="docs.html">Documentation</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Use</a>
+  </div>
+</div>
+
+<!-- ================= HERO ================= -->
+<section class="doc-hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="container">
+    <span class="doc-eyebrow"><span class="dot-live"></span> Whitepaper · v1.0</span>
+    <h1>GRAVE: The First Onchain<br>Last&nbsp;Will&nbsp;Protocol</h1>
+    <p class="lead">A non-custodial protocol that turns inheritance into code. Lock ETH and tokenized
+      real-world assets into an immutable smart-contract vault on Robinhood Chain; prove you are alive
+      on a schedule you choose; and, if you ever stop, let your beneficiaries claim their pre-defined
+      shares — with no court, no custodian, and no admin key.</p>
+    <div class="doc-meta">
+      <span><strong>Version</strong> 1.0</span>
+      <span><strong>Network</strong> Robinhood Chain (Arbitrum Orbit L2)</span>
+      <span><strong>Status</strong> Live · Unaudited</span>
+      <span><strong>Updated</strong> September 2026</span>
+    </div>
+  </div>
+</section>
+
+<div class="doc-shell">
+  <!-- ---------- TOC ---------- -->
+  <aside class="doc-toc" aria-label="Table of contents">
+    <h4>Contents</h4>
+    <ul>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#problem">1 · The Problem</a></li>
+      <li><a href="#solution">2 · The GRAVE Solution</a></li>
+      <li><a href="#architecture">3 · Architecture</a></li>
+      <li><a href="#lifecycle" class="sub">3.1 · Vault lifecycle</a></li>
+      <li><a href="#proof-of-life" class="sub">3.2 · Proof of life</a></li>
+      <li><a href="#execution" class="sub">3.3 · Execution &amp; claims</a></li>
+      <li><a href="#guardians">4 · Guardian Network</a></li>
+      <li><a href="#rwa">5 · RWA Stock Tokens</a></li>
+      <li><a href="#security">6 · Security Model</a></li>
+      <li><a href="#threats">7 · Threat Analysis</a></li>
+      <li><a href="#fees">8 · Fees &amp; Economics</a></li>
+      <li><a href="#roadmap">9 · Roadmap</a></li>
+      <li><a href="#legal">10 · Legal Notice</a></li>
+      <li><a href="#glossary">Glossary</a></li>
+    </ul>
+  </aside>
+
+  <!-- ---------- ARTICLE ---------- -->
+  <article class="doc-article">
+
+    <section id="abstract">
+      <h2>Abstract</h2>
+      <p class="section-lead">Every year, an enormous amount of wealth is frozen, lost, or fought over
+        because the systems that transfer it after death are slow, opaque, and built for paper.</p>
+      <p>GRAVE is a fully onchain last-will protocol. Instead of trusting a court, a lawyer, or a
+        custodian to honor your wishes, you encode them directly into an immutable smart contract — a
+        <strong>GRAVE Vault</strong> — deployed on Robinhood Chain. The vault holds your ETH and RWA
+        Stock Tokens, tracks a proof-of-life schedule that only you control, and, once that schedule
+        lapses beyond a grace period, allows your named beneficiaries to permissionlessly claim their
+        exact, pre-defined shares.</p>
+      <p>There is no admin key, no upgrade path, and no pause switch. While you are active, only you
+        can move funds or change the terms. After execution, the split is frozen by an onchain balance
+        snapshot so shares never drift as beneficiaries claim one at a time. The result is inheritance
+        that is <strong>cryptographically final, borderless, and self-executing</strong>.</p>
+    </section>
+
+    <section id="problem">
+      <h2><span class="num">01</span> The Problem</h2>
+      <p>The transfer of wealth between generations still runs on infrastructure designed centuries
+        ago. For digital and tokenized assets, that infrastructure is not just slow — it is
+        structurally incompatible with how the assets themselves work.</p>
+      <h3>Probate is slow and expensive</h3>
+      <p>Traditional wills route wealth through probate courts. Settlement routinely takes months to
+        years and consumes a meaningful share of the estate in executor, legal, and notary fees. The
+        process assumes a central authority with the time and jurisdiction to adjudicate every claim.</p>
+      <h3>Paper is disputable and forgeable</h3>
+      <p>A physical will is a single point of failure. It can be lost, contested, altered, or ruled
+        invalid on a technicality. The people it is meant to protect often have the least power to
+        defend it.</p>
+      <h3>Digital assets fall through the cracks</h3>
+      <p>Self-custodied crypto and tokenized real-world assets have no built-in succession. If the
+        owner dies without securely passing on their keys, the assets are frozen forever — invisible to
+        any court and unreachable by any heir. Sharing keys in advance re-introduces exactly the
+        custodial risk self-custody was meant to remove.</p>
+      <div class="callout warn">
+        <span class="callout-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3L22 20H2L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10V14M12 17V17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <p>Every existing solution forces a trade-off: keep full control and risk your assets dying
+          with you, or share access early and re-create the custodial risk you were trying to escape.
+          GRAVE's design exists to break that trade-off.</p>
+      </div>
+    </section>
+
+    <section id="solution">
+      <h2><span class="num">02</span> The GRAVE Solution</h2>
+      <p class="section-lead">GRAVE replaces the trusted third party with a deterministic smart
+        contract. The rules you set are the rules that execute — nothing more, nothing less.</p>
+      <p>A GRAVE will is created once, verified continuously, and executed automatically. You keep
+        complete, non-custodial control for as long as you are active. The protocol only ever does one
+        thing you cannot: it opens the vault to your beneficiaries after you have provably gone
+        silent for longer than the window you defined.</p>
+      <div class="doc-cards">
+        <div class="doc-card"><h4>Non-custodial</h4><p>Assets sit in a vault only you can move while active. GRAVE never takes custody and holds no key that can touch your funds.</p></div>
+        <div class="doc-card"><h4>Immutable</h4><p>Each vault is a non-upgradable contract. No backdoor, no pause, no admin override — not even by the GRAVE team.</p></div>
+        <div class="doc-card"><h4>Permissionless</h4><p>Once expired, anyone can trigger execution and any beneficiary can claim. No gatekeeper can block a valid inheritance.</p></div>
+        <div class="doc-card"><h4>Final</h4><p>Execution snapshots balances onchain, fixing every share at that instant so claims can settle independently and verifiably.</p></div>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2><span class="num">03</span> Architecture</h2>
+      <p>GRAVE is intentionally small. It is two Solidity contracts and a set of clear rules — the less
+        code that guards generational wealth, the less that can go wrong.</p>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>Component</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>GraveFactory</code></td><td>Deploys and indexes exactly one vault per owner address; emits <code>VaultCreated</code> and answers <code>vaultOf(address)</code> lookups.</td></tr>
+            <tr><td><code>GraveVault</code></td><td>The per-owner will. Holds ETH and tracked ERC-20s, stores the schedule, beneficiaries, and guardians, and enforces the entire lifecycle.</td></tr>
+            <tr><td>Heartbeat Oracle</td><td>The off-chain reminder &amp; check-in surface (the dApp and its notifications). The onchain source of truth is always <code>lastCheckIn</code>.</td></tr>
+            <tr><td>Guardian set</td><td>Optional addresses the owner trusts to submit a proof-of-life check-in on their behalf.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="lifecycle">3.1 · Vault lifecycle</h3>
+      <p>A vault moves through three states. The transition into <em>Executed</em> is one-way and
+        irreversible.</p>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>State</th><th>Who can act</th><th>What is possible</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Active</strong></td><td>Owner (&amp; guardians for check-in)</td><td>Deposit, withdraw, check in, edit schedule / beneficiaries / guardians.</td></tr>
+            <tr><td><strong>Expired</strong></td><td>Anyone</td><td>Owner controls still work, but <code>execute()</code> can now be called by anyone.</td></tr>
+            <tr><td><strong>Executed</strong></td><td>Beneficiaries</td><td>Balances are snapshotted; owner controls are locked; each beneficiary calls <code>claim()</code> once.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The deadline is a pure function of onchain state:</p>
+      <pre><code><span class="k">function</span> deadline() <span class="k">public view returns</span> (uint64) {
+    <span class="k">return</span> lastCheckIn + checkInInterval + gracePeriod;
+}
+
+<span class="c">// Execution unlocks the moment block.timestamp passes the deadline.</span>
+<span class="k">function</span> isExpired() <span class="k">public view returns</span> (bool) {
+    <span class="k">return</span> block.timestamp &gt; deadline();
+}</code></pre>
+
+      <h3 id="proof-of-life">3.2 · Proof of life</h3>
+      <p>The <strong>only</strong> thing keeping a vault closed is a fresh check-in. Calling
+        <code>checkIn()</code> stamps <code>lastCheckIn</code> with the current block time and resets the
+        countdown. The owner can always check in; any guardian can check in on their behalf.</p>
+      <p>Two owner-defined parameters shape the schedule:</p>
+      <ul>
+        <li><strong>Check-in interval</strong> — how long you may go silent before the grace period even begins.</li>
+        <li><strong>Grace period</strong> — an additional buffer after the interval, during which the vault is technically expirable but you (or a guardian) can still cancel the whole thing with a single check-in.</li>
+      </ul>
+      <div class="callout">
+        <span class="callout-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 7V12L15 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        <p>Nothing executes at the interval — only after <strong>interval + grace period</strong> have both fully elapsed. A single check-in during the grace window resets the entire timer, so an accidental miss is fully recoverable.</p>
+      </div>
+
+      <h3 id="execution">3.3 · Execution &amp; claims</h3>
+      <p>When <code>isExpired()</code> becomes true, <code>execute()</code> is open to <em>anyone</em> —
+        a beneficiary, a watcher bot, or a good samaritan. It flips the vault to executed and takes a
+        one-time balance snapshot of ETH and every tracked token.</p>
+      <p>Beneficiaries then call <code>claim()</code> independently. Each receives
+        <code>snapshot × bps / 10,000</code> of ETH and of every token, exactly once. Because the
+        snapshot is frozen at execution, it does not matter whether beneficiaries claim in the same
+        block or years apart — the arithmetic is identical and no one can dilute anyone else.</p>
+      <pre><code><span class="c">// Shares are fixed at execution so they never drift between claims.</span>
+uint256 ethAmount = (ethSnapshot * share) / 10_000;
+<span class="k">for</span> (each tracked token) {
+    amount = (tokenSnapshot[token] * share) / 10_000;
+}</code></pre>
+      <p>Every beneficiary's share is stored in <strong>basis points</strong> (bps), and the full set
+        must sum to exactly <code>10,000</code> (100%) when it is set — the contract rejects any
+        allocation that does not.</p>
+    </section>
+
+    <section id="guardians">
+      <h2><span class="num">04</span> Guardian Network</h2>
+      <p>Guardians are an optional social safety net. They are addresses you designate and trust — a
+        family member, a partner, a second device of your own — who are permitted to do exactly one
+        thing: submit a proof-of-life <code>checkIn()</code> on your behalf.</p>
+      <p>This protects against the failure mode that worries people most: a temporary inability to
+        check in (travel, illness, a lost device) triggering an execution you did not intend. A guardian
+        can reset the countdown for you. Crucially, guardians <strong>cannot</strong> withdraw funds,
+        change beneficiaries, alter the schedule, or trigger execution — their power is strictly limited
+        to keeping the vault alive.</p>
+      <div class="callout">
+        <span class="callout-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3L20 7V12C20 17 16.5 20.5 12 21C7.5 20.5 4 17 4 12V7L12 3Z" stroke="currentColor" stroke-width="1.6"/></svg>
+        </span>
+        <p>A guardian can only ever <em>delay</em> execution, never cause or redirect it. Adding
+          guardians strictly reduces the risk of a premature trigger without adding any custodial
+          exposure.</p>
+      </div>
+    </section>
+
+    <section id="rwa">
+      <h2><span class="num">05</span> RWA Stock Tokens</h2>
+      <p>GRAVE is built for Robinhood Chain's core use case: tokenized real-world assets, and Stock
+        Tokens in particular. From the vault's perspective, a Stock Token is a standard ERC-20, so no
+        special integration is required — any ERC-20 can be deposited, curated shortcuts or not.</p>
+      <p>To remain compatible with the full spectrum of token implementations, transfers use a
+        <code>SafeTransfer</code> library that tolerates both standard and non-standard (no boolean
+        return) ERC-20s. The vault tracks each token it has seen so that, at execution, it can snapshot
+        and later distribute every asset it holds.</p>
+      <div class="callout warn">
+        <span class="callout-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3L22 20H2L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10V14M12 17V17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <p>Some RWA tokens carry transfer fees, blocklists, or pausability. Confirm a token's transfer
+          semantics before depositing — behavior that blocks or taxes transfers can affect what
+          beneficiaries ultimately receive.</p>
+      </div>
+    </section>
+
+    <section id="security">
+      <h2><span class="num">06</span> Security Model</h2>
+      <p>GRAVE's security comes from what it deliberately cannot do. The contract is the trust
+        boundary, and it is designed so that no privileged party — including the protocol's own
+        authors — can subvert an owner's intent.</p>
+      <ul>
+        <li><strong>No admin key.</strong> There is no owner-of-owners, no multisig with special powers, and no role that can drain or freeze a vault.</li>
+        <li><strong>No upgrade path.</strong> Vaults are non-upgradable. The code that guards your assets on day one is the code that guards them forever.</li>
+        <li><strong>No pause switch.</strong> Nothing can halt a valid execution or block a legitimate claim.</li>
+        <li><strong>Reentrancy-guarded.</strong> ETH sends and token transfers in <code>withdrawETH</code>, <code>execute</code>, and <code>claim</code> are protected by a non-reentrancy lock and a checks-effects-interactions ordering.</li>
+        <li><strong>Snapshot isolation.</strong> Freezing balances at execution means one beneficiary's claim can never change another's share.</li>
+        <li><strong>Owner-only mutations.</strong> Deposits, withdrawals, and every configuration change require the owner and only work while the vault is active and un-executed.</li>
+      </ul>
+      <div class="callout danger">
+        <span class="callout-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3L22 20H2L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10V14M12 17V17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <p><strong>The contracts are currently unaudited.</strong> GRAVE handles real assets. Test on
+          testnet, review the source, and treat any mainnet use as experimental until an independent
+          audit is published.</p>
+      </div>
+    </section>
+
+    <section id="threats">
+      <h2><span class="num">07</span> Threat Analysis</h2>
+      <p>A protocol that self-executes must reason carefully about the ways it could go wrong. The
+        table below maps the principal risks to their mitigations.</p>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td>Premature execution (owner alive but silent)</td><td>Owner-defined interval <em>plus</em> grace period; guardians can check in; a single check-in resets everything.</td></tr>
+            <tr><td>Never-triggered execution (no one calls <code>execute</code>)</td><td>Execution is permissionless — beneficiaries or watcher bots are naturally incentivized to trigger it.</td></tr>
+            <tr><td>Share drift as beneficiaries claim over time</td><td>One-time balance snapshot at execution fixes every share.</td></tr>
+            <tr><td>Malicious or exotic ERC-20 behavior</td><td><code>SafeTransfer</code> handling; owners advised to vet token semantics before depositing.</td></tr>
+            <tr><td>Reentrancy during sends</td><td>Non-reentrancy lock + effects-before-interactions.</td></tr>
+            <tr><td>Beneficiary loses wallet access post-execution</td><td>Owners can pre-plan recovery; roadmap includes social-recovery flows for beneficiary wallets.</td></tr>
+            <tr><td>Protocol-level compromise</td><td>No admin key or upgrade path exists to be compromised in the first place.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="fees">
+      <h2><span class="num">08</span> Fees &amp; Economics</h2>
+      <p>GRAVE's smart contracts charge <strong>no protocol fee</strong> on deposits, withdrawals, or
+        claims. The only cost to use the protocol is Robinhood Chain gas, paid in ETH.</p>
+      <p>Because Robinhood Chain is an Arbitrum-Orbit L2 optimized for real-world assets, transaction
+        fees are low enough for global inheritance flows that would be economically impossible on a
+        base layer. Creating a vault, checking in, depositing, executing, and claiming are all ordinary
+        transactions.</p>
+      <div class="doc-stats">
+        <div class="doc-stat"><div class="v">0%</div><div class="l">Protocol fee</div></div>
+        <div class="doc-stat"><div class="v">ETH</div><div class="l">Gas currency</div></div>
+        <div class="doc-stat"><div class="v">4663</div><div class="l">Chain ID (mainnet)</div></div>
+        <div class="doc-stat"><div class="v">1 : 1</div><div class="l">Vaults per owner</div></div>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <h2><span class="num">09</span> Roadmap</h2>
+      <p>GRAVE ships as a minimal, working core. Future work extends its safety and reach without ever
+        compromising the non-custodial, admin-key-free foundation.</p>
+      <ul>
+        <li><strong>Independent security audit</strong> of <code>GraveVault</code> and <code>GraveFactory</code> before any recommended mainnet use.</li>
+        <li><strong>Decentralized heartbeat notifications</strong> — redundant, multi-signal reminder infrastructure so owners never miss a check-in for lack of a nudge.</li>
+        <li><strong>Beneficiary social recovery</strong> — guardian-assisted recovery flows to reduce the risk of assets becoming inaccessible after execution.</li>
+        <li><strong>Richer allocation logic</strong> — optional time-locks, staged releases, and conditional beneficiaries.</li>
+        <li><strong>Broader RWA coverage</strong> — curated Stock Token lists and metadata as the Robinhood Chain asset universe grows.</li>
+      </ul>
+    </section>
+
+    <section id="legal">
+      <h2><span class="num">10</span> Legal Notice</h2>
+      <p>GRAVE is a technical execution layer, not a law firm and not a substitute for a legally valid
+        will. It is designed to <em>complement</em> your estate planning, not replace it. Whether an
+        onchain transfer is recognized, how it is taxed, and how it interacts with your local
+        inheritance law varies by jurisdiction.</p>
+      <p>GRAVE is experimental software provided "as is," without warranties of any kind. It is not
+        legal, financial, or tax advice. Always consult qualified professionals in your jurisdiction
+        before relying on GRAVE for real assets. See the
+        <a class="inline" href="terms.html">Terms of Use</a> and
+        <a class="inline" href="privacy.html">Privacy Policy</a> for the full terms governing use of
+        the protocol and its interfaces.</p>
+    </section>
+
+    <section id="glossary">
+      <h2>Glossary</h2>
+      <div class="doc-table-wrap">
+        <table>
+          <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Vault</td><td>A per-owner <code>GraveVault</code> contract holding assets and enforcing the will.</td></tr>
+            <tr><td>Check-in</td><td>A proof-of-life transaction resetting the countdown to expiry.</td></tr>
+            <tr><td>Interval</td><td>Seconds the owner may stay silent before the grace period begins.</td></tr>
+            <tr><td>Grace period</td><td>Extra buffer after the interval; a check-in here still cancels execution.</td></tr>
+            <tr><td>Execution</td><td>The permissionless, one-way action that snapshots balances and opens claims.</td></tr>
+            <tr><td>bps</td><td>Basis points; a beneficiary's share. All shares sum to 10,000 (100%).</td></tr>
+            <tr><td>Guardian</td><td>A trusted address allowed only to submit a check-in for the owner.</td></tr>
+            <tr><td>RWA Stock Token</td><td>A tokenized real-world asset, treated as a standard ERC-20 by the vault.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- pager -->
+    <nav class="doc-pager" aria-label="More documents">
+      <a class="prev" href="docs.html">
+        <span class="dir">Next ↗</span>
+        <span class="ttl">Documentation — Get started &amp; contract reference</span>
+      </a>
+      <a class="next" href="https://app.grave.cash/">
+        <span class="dir">Launch ↗</span>
+        <span class="ttl">Open the GRAVE dApp</span>
+      </a>
+    </nav>
+  </article>
+</div>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="brand footer-brand-mark">
+        <img src="assets/logo.png" alt="" width="30" height="30">
+        <span class="brand-name">GRAVE</span>
+      </span>
+      <p>The first onchain last will protocol.<br>Built on Robinhood Chain.</p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Protocol</h4>
+        <a href="/#how">How it Works</a>
+        <a href="/#architecture">Architecture</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="whitepaper.html">Whitepaper</a>
+        <a href="docs.html">Documentation</a>
+        <a href="https://app.grave.cash/">Launch App</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Use</a>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <a href="https://x.com/gravedotcash" target="_blank" rel="noopener">X (@gravedotcash)</a>
+      </div>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <p>© 2026 GRAVE Protocol. All rights reserved.</p>
+    <p class="footer-disclaimer">GRAVE is experimental software provided as-is. Not legal, financial, or tax advice. Use at your own risk.</p>
+  </div>
+</footer>
+
+<script src="js/docs.js"></script>
+</body>
+</html>
