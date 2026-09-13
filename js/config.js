@@ -10,7 +10,7 @@ window.GRAVE_CONFIG = {
   // The default below is Reown's public localhost-only demo id — REPLACE IT with
   // your own before deploying, or the modal won't authorize on your domain.
   // Leave empty ("") to fall back to a basic injected-wallet connect.
-  WALLETCONNECT_PROJECT_ID: "b56e18d47c72ab683b10814fe9495694",
+  WALLETCONNECT_PROJECT_ID: "fc30dabc7ffba787f7415f0c4c613c75",
 
   NETWORKS: {
     mainnet: {
