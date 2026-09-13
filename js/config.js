@@ -1,8 +1,7 @@
 /* GRAVE dApp configuration — Robinhood Chain */
 window.GRAVE_CONFIG = {
-  // Which network the dApp targets. Testnet is the safe default while the
-  // protocol contracts are unaudited. Switch to "mainnet" once deployed & audited.
-  DEFAULT_NETWORK: "testnet",
+  // Which network the dApp targets.
+  DEFAULT_NETWORK: "mainnet",
 
   // Reown AppKit (WalletConnect) project id — powers the multi-wallet modal
   // (Trust, MetaMask, Binance, SafePal, 80+ wallets incl. mobile via QR/deeplink).
