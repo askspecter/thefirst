@@ -37,7 +37,7 @@ window.GRAVE_CONFIG = {
   // Deployed GraveFactory addresses. Fill these in after running the Foundry
   // deploy script (see contracts/README.md). Leave empty until deployed.
   FACTORY: {
-    mainnet: "",
+    mainnet: "0x3Fa87f229c42d892a91f0DfeFC85c21F4cddd6A0",
     testnet: "",
   },
 
