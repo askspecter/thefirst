@@ -80,8 +80,17 @@
   /* ------------------------------------------------------------------ */
   /*  Wallet                                                            */
   /* ------------------------------------------------------------------ */
-  // Primary entry: prefer the Reown AppKit multi-wallet modal; else injected.
+  let connectedVia = null;
+
+  // Inside a wallet's in-app browser the injected provider is the wallet itself;
+  // WalletConnect there often fails ("connection declined / previous request active").
+  function isInAppWallet() {
+    return !!window.ethereum && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  }
+
+  // Primary entry: in-app wallet → injected; otherwise the Reown AppKit modal.
   async function connect() {
+    if (isInAppWallet()) return connectInjected();
     if (window.GraveWallet && window.GraveWallet.available) {
       usingAppKit = true;
       window.GraveWallet.open();
@@ -94,10 +103,11 @@
     return connectInjected();
   }
 
-  // Basic EIP-1193 injected connect (fallback).
+  // Basic EIP-1193 injected connect.
   async function connectInjected() {
     if (!window.ethereum) { el("noWalletHint").hidden = false; return; }
     usingAppKit = false;
+    connectedVia = "injected";
     provider = new ethers.BrowserProvider(window.ethereum, "any");
     try {
       const accs = await provider.send("eth_requestAccounts", []);
@@ -440,13 +450,14 @@
 
     // AppKit bridge: react to wallet/account/network changes from the modal.
     window.addEventListener("grave:wallet", async (e) => {
+      if (connectedVia === "injected") return; // in-app injected takes precedence
       const d = e.detail || {};
       if (d.isConnected && d.provider && d.address) {
-        usingAppKit = true;
+        usingAppKit = true; connectedVia = "appkit";
         try { await onConnected(d.provider, d.address, d.chainId); }
         catch (err) { toast(errMsg(err), { error: true }); }
       } else if (!d.isConnected && usingAppKit) {
-        account = null; signer = null; provider = null;
+        account = null; signer = null; provider = null; connectedVia = null;
         updateNav(); showPanel("connect");
       }
     });

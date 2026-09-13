@@ -44,11 +44,22 @@
     render();
   }
 
-  async function connect() {
-    if (window.GraveWallet && window.GraveWallet.available) { usingAppKit = true; window.GraveWallet.open(); return; }
+  let connectedVia = null;
+  function isInAppWallet() {
+    return !!window.ethereum && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  }
+
+  async function connectInjected() {
     if (!window.ethereum) { toast("No EVM wallet detected.", { error: true }); return; }
+    usingAppKit = false; connectedVia = "injected";
     try { const accs = await new ethers.BrowserProvider(window.ethereum).send("eth_requestAccounts", []); await onConnected(window.ethereum, accs[0]); }
     catch (e) { toast(errMsg(e), { error: true }); }
+  }
+
+  async function connect() {
+    if (isInAppWallet()) return connectInjected();
+    if (window.GraveWallet && window.GraveWallet.available) { usingAppKit = true; window.GraveWallet.open(); return; }
+    return connectInjected();
   }
 
   async function switchNet() {
@@ -97,9 +108,10 @@
     el("copyBtn").addEventListener("click", copyConfig);
 
     window.addEventListener("grave:wallet", async (e) => {
+      if (connectedVia === "injected") return;
       const d = e.detail || {};
-      if (d.isConnected && d.provider && d.address) { usingAppKit = true; try { await onConnected(d.provider, d.address, d.chainId); } catch (err) { toast(errMsg(err), { error: true }); } }
-      else if (!d.isConnected && usingAppKit) { account = null; signer = null; provider = null; render(); }
+      if (d.isConnected && d.provider && d.address) { usingAppKit = true; connectedVia = "appkit"; try { await onConnected(d.provider, d.address, d.chainId); } catch (err) { toast(errMsg(err), { error: true }); } }
+      else if (!d.isConnected && usingAppKit) { account = null; signer = null; provider = null; connectedVia = null; render(); }
     });
 
     if (!APPKIT_CONFIGURED && window.ethereum) {
