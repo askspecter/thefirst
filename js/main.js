@@ -36,10 +36,49 @@
     revealEls.forEach(el => el.classList.add('in-view'));
   }
 
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Cinematic scroll parallax ---------- */
+  const heroEmblem = document.querySelector('.hero-emblem');
+  const heroInner = document.querySelector('.hero-inner');
+  const heroGrid = document.querySelector('.hero-grid');
+  let latestY = window.scrollY;
+  let parallaxTicking = false;
+
+  function applyParallax() {
+    const y = latestY;
+    const vh = window.innerHeight || 1;
+    if (heroEmblem) {
+      const p = Math.min(y / vh, 1.2);
+      heroEmblem.style.transform =
+        `translate(-50%, ${-50 + p * -22}%) scale(${1 + p * 0.4}) rotate(${p * 8}deg)`;
+      heroEmblem.style.opacity = String(Math.max(0, 0.16 * (1 - p * 0.85)));
+    }
+    if (heroInner) {
+      const p = Math.min(y / (vh * 0.85), 1);
+      heroInner.style.transform = `translateY(${p * 70}px) scale(${1 - p * 0.04})`;
+      heroInner.style.opacity = String(Math.max(0, 1 - p * 1.15));
+    }
+    if (heroGrid) {
+      heroGrid.style.transform = `translateY(${y * 0.18}px)`;
+    }
+    parallaxTicking = false;
+  }
+
+  if (!prefersReducedMotion) {
+    window.addEventListener('scroll', () => {
+      latestY = window.scrollY;
+      if (!parallaxTicking) {
+        requestAnimationFrame(applyParallax);
+        parallaxTicking = true;
+      }
+    }, { passive: true });
+    applyParallax();
+  }
+
   /* ---------- Ember particle background ---------- */
   const canvas = document.getElementById('fx-canvas');
   const ctx = canvas.getContext('2d');
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let w, h, particles;
   const PARTICLE_COUNT = 46;
@@ -66,12 +105,22 @@
     particles = Array.from({ length: PARTICLE_COUNT }, makeParticle);
   }
 
+  /* scroll velocity surges the ember field */
+  let scrollBoost = 0;
+  let boostLastY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    scrollBoost = Math.min(scrollBoost + Math.abs(y - boostLastY) * 0.12, 8);
+    boostLastY = y;
+  }, { passive: true });
+
   function tick() {
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#e8e8e6';
+    scrollBoost *= 0.9;
 
     particles.forEach(p => {
-      p.y -= p.speed;
+      p.y -= p.speed + scrollBoost * (0.4 + p.r * 0.3);
       p.x += p.drift;
       p.pulse += 0.02;
 
