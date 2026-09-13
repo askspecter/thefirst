@@ -47,6 +47,14 @@ basic injected-wallet connect automatically.
 
 `DEFAULT_NETWORK` in `js/config.js` selects testnet (default) or mainnet.
 
+### Hosting
+
+The landing page is served at the root domain; the dApp lives in `app/` and is
+served at the `app.grave.cash` subdomain. `vercel.json` rewrites that subdomain's
+root to `/app/index.html`; the app references shared `/css`, `/js` and `/assets`
+by absolute path, so it works both at `app.grave.cash` and at `/app/`. Point
+`app.grave.cash` at this Vercel project and allowlist it in the Reown dashboard.
+
 ## Status
 
 The contracts are **unaudited**. Test on testnet and commission an audit before
