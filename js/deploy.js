@@ -29,6 +29,7 @@
     el("step-connect").hidden = !!account;
     const onNet = account && chainId === NET.chainId;
     el("step-network").hidden = !(account && !onNet);
+    el("step-activate").hidden = !onNet;
     el("step-deploy").hidden = !onNet;
     const existing = CFG.FACTORY[CFG.DEFAULT_NETWORK] || localStorageGet();
     if (existing) { el("existingWrap").hidden = false; el("existingAddr").textContent = existing; el("existingAddr").href = NET.explorer + "/address/" + existing; }
@@ -73,6 +74,27 @@
     }
   }
 
+  // Robinhood Chain rejects contract creation from an address it has never
+  // seen. A single normal (non-creation) tx from the address fixes that.
+  async function activate() {
+    if (!signer) return;
+    const btn = el("activateBtn");
+    const label = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Activating…';
+    try {
+      const tx = await signer.sendTransaction({ to: account, value: 0n });
+      toast("Activating your address…", { link: NET.explorer + "/tx/" + tx.hash, timeout: 0 });
+      await tx.wait();
+      toast("Address activated. You can deploy now.");
+    } catch (e) { toast(errMsg(e), { error: true }); }
+    finally { btn.disabled = false; btn.innerHTML = label; }
+  }
+
+  function looksLikeAllowlist(e) {
+    const m = (errMsg(e) || "").toLowerCase();
+    return m.includes("revert") || m.includes("allow") || m.includes("filter") || m.includes("denied");
+  }
+
   async function deploy() {
     if (!signer) return;
     const btn = el("deployBtn");
@@ -91,7 +113,14 @@
       el("configLine").textContent = `FACTORY: { ${CFG.DEFAULT_NETWORK}: "${addr}" }`;
       toast("Factory deployed.", { link: NET.explorer + "/address/" + addr });
       render();
-    } catch (e) { toast(errMsg(e), { error: true }); }
+    } catch (e) {
+      if (looksLikeAllowlist(e)) {
+        toast("Deploy rejected — new addresses must run step 3 (Activate) first, then deploy.", { error: true, timeout: 9000 });
+        el("step-activate").scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        toast(errMsg(e), { error: true });
+      }
+    }
     finally { btn.disabled = false; btn.innerHTML = label; }
   }
 
@@ -104,6 +133,7 @@
     el("connectBtn").addEventListener("click", connect);
     el("connectBtn2").addEventListener("click", connect);
     el("switchNetBtn").addEventListener("click", switchNet);
+    el("activateBtn").addEventListener("click", activate);
     el("deployBtn").addEventListener("click", deploy);
     el("copyBtn").addEventListener("click", copyConfig);
 
