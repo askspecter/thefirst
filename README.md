@@ -9,7 +9,7 @@ their pre-defined shares — no probate, no custodian, no admin key.
 
 | Path             | What it is                                                                 |
 | ---------------- | ------------------------------------------------------------------------- |
-| `index.html`     | Marketing landing page (`css/style.css`, `js/main.js`)                    |
+| `landing.html`   | Marketing landing page, served at grave.cash (`css/style.css`, `js/main.js`) |
 | `app/`           | The dApp — wallet connect, create vault, deposit RWA, check-in, claim     |
 | `js/app.js`      | dApp logic (ethers v6)                                                    |
 | `js/config.js`   | Network + deployed contract addresses + ABIs                             |

@@ -2,6 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>
+  // app.grave.cash must always land on the dApp, even if the host rewrite fails.
+  (function () {
+    try {
+      if (location.hostname === "app.grave.cash" && !location.pathname.startsWith("/app")) {
+        location.replace("/app/" + location.search + location.hash);
+      }
+    } catch (e) {}
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GRAVE — The First Onchain Last Will Protocol</title>
 <meta name="description" content="GRAVE is the first fully onchain last will protocol. Lock your assets in immutable smart contracts on Robinhood Chain and let your legacy execute itself, forever.">

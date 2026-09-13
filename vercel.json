@@ -9,6 +9,7 @@
       "source": "/deploy",
       "has": [{ "type": "host", "value": "app.grave.cash" }],
       "destination": "/app/deploy.html"
-    }
+    },
+    { "source": "/", "destination": "/landing.html" }
   ]
 }
