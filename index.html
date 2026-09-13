@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRAVE — The First Onchain Last Will Protocol</title>
+<meta name="description" content="GRAVE is the first fully onchain last will protocol. Lock your assets in immutable smart contracts on Robinhood Chain and let your legacy execute itself, forever.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<canvas id="fx-canvas"></canvas>
+
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 40 40" fill="none">
+          <path d="M8 36V18C8 10.268 13.373 4 20 4C26.627 4 32 10.268 32 18V36" stroke="url(#gGrad)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="4" y1="36" x2="36" y2="36" stroke="url(#gGrad)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M20 12L23 17H17L20 12Z" fill="url(#gGrad)"/>
+          <circle cx="20" cy="24" r="2" fill="url(#gGrad)"/>
+          <line x1="20" y1="26" x2="20" y2="31" stroke="url(#gGrad)" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="gGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#4CFF9E"/>
+              <stop offset="1" stop-color="#0FB870"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
+      <span class="brand-name">GRAVE</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#protocol">Protocol</a>
+      <a href="#how">How it Works</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a href="#docs" class="btn btn-ghost">Docs</a>
+      <a href="#launch" class="btn btn-primary">
+        <span>Launch App</span>
+      </a>
+      <button class="nav-burger" id="navBurger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-glow" aria-hidden="true"></div>
+
+    <div class="container hero-inner">
+      <div class="badge-pill reveal">
+        <span class="dot-live"></span>
+        Live on Robinhood Chain · Testnet
+      </div>
+
+      <h1 class="hero-title reveal" style="--d:0.05s">
+        Your legacy<br>
+        <span class="text-gradient">never dies.</span>
+      </h1>
+
+      <p class="hero-sub reveal" style="--d:0.15s">
+        GRAVE is the first fully onchain last will protocol. Lock your assets into
+        immutable smart contracts and let them execute exactly as you intended —
+        no courts, no lawyers, no single point of failure.
+      </p>
+
+      <div class="hero-actions reveal" style="--d:0.25s">
+        <a href="#launch" class="btn btn-primary btn-lg">
+          <span>Launch App</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#docs" class="btn btn-outline btn-lg">Read Whitepaper</a>
+      </div>
+
+      <div class="hero-badges reveal" style="--d:0.35s">
+        <div class="mini-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6V11C4 16 7.5 20.5 12 22C16.5 20.5 20 16 20 11V6L12 2Z" stroke="currentColor" stroke-width="1.6"/></svg> Non-Custodial</div>
+        <div class="mini-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M4 10H20" stroke="currentColor" stroke-width="1.6"/></svg> Immutable Contracts</div>
+        <div class="mini-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 7V12L15 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> 24/7 Onchain Execution</div>
+        <div class="mini-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3L20 7V12C20 17 16.5 20.5 12 21C7.5 20.5 4 17 4 12V7L12 3Z" stroke="currentColor" stroke-width="1.6"/></svg> Built on Robinhood Chain</div>
+      </div>
+    </div>
+
+    <div class="scroll-cue reveal" style="--d:0.5s">
+      <span></span>
+      <p>Scroll</p>
+    </div>
+  </section>
+
+  <!-- ================= LOGO STRIP ================= -->
+  <section class="strip">
+    <div class="container strip-inner">
+      <p class="strip-label">Engineered for the network built for real-world value</p>
+      <div class="strip-chain">
+        <div class="chain-badge">
+          <span class="chain-dot"></span> Robinhood Chain
+        </div>
+        <span class="strip-sep">·</span>
+        <span class="strip-item">Arbitrum Orbit L2</span>
+        <span class="strip-sep">·</span>
+        <span class="strip-item">EVM Compatible</span>
+        <span class="strip-sep">·</span>
+        <span class="strip-item">Sub-cent Fees</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROBLEM / SOLUTION ================= -->
+  <section class="section" id="protocol">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">The Problem</span>
+        <h2>Inheritance is still stuck in paper.</h2>
+        <p class="section-sub">Traditional wills route wealth through slow courts, expensive middlemen, and processes built for a pre-digital world.</p>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-card compare-bad reveal">
+          <span class="compare-tag">Traditional Will</span>
+          <ul>
+            <li><span class="x-ico">✕</span> Months to years in probate court</li>
+            <li><span class="x-ico">✕</span> Executors, lawyers &amp; notary fees</li>
+            <li><span class="x-ico">✕</span> Disputable, forgeable paperwork</li>
+            <li><span class="x-ico">✕</span> Single point of failure</li>
+            <li><span class="x-ico">✕</span> Painful across borders &amp; jurisdictions</li>
+          </ul>
+        </div>
+
+        <div class="compare-vs reveal">
+          <div class="vs-line"></div>
+          <span>VS</span>
+          <div class="vs-line"></div>
+        </div>
+
+        <div class="compare-card compare-good reveal">
+          <span class="compare-tag compare-tag-good">GRAVE Protocol</span>
+          <ul>
+            <li><span class="check-ico">✓</span> Executes instantly once conditions are met</li>
+            <li><span class="check-ico">✓</span> Zero intermediaries, zero custody risk</li>
+            <li><span class="check-ico">✓</span> Cryptographically verifiable &amp; final</li>
+            <li><span class="check-ico">✓</span> Redundant guardian &amp; oracle network</li>
+            <li><span class="check-ico">✓</span> Borderless, permissionless, global</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section class="section section-alt" id="how">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">How It Works</span>
+        <h2>Four steps to an immortal will.</h2>
+        <p class="section-sub">A GRAVE will is created once, verified continuously, and executed automatically — without anyone needing to lift a finger.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step-card reveal">
+          <div class="step-num">01</div>
+          <h3>Create Your Will</h3>
+          <p>Define beneficiaries, asset allocations, and release conditions directly onchain through the GRAVE dApp. No paperwork, no notary.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-num">02</div>
+          <h3>Lock Your Assets</h3>
+          <p>Deposit crypto assets into your own non-custodial GRAVE Vault, deployed on Robinhood Chain. You retain full control at all times.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-num">03</div>
+          <h3>Proof-of-Life Check-ins</h3>
+          <p>The Heartbeat Oracle periodically confirms you're active. Miss your check-in window, and a public grace-period countdown begins.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-num">04</div>
+          <h3>Automatic Execution</h3>
+          <p>Once the grace period lapses, the vault permissionlessly and irreversibly distributes assets to your beneficiaries. Final. Forever.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ARCHITECTURE ================= -->
+  <section class="section" id="architecture">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Architecture</span>
+        <h2>Built to outlive its creator.</h2>
+        <p class="section-sub">Every layer of GRAVE is designed around one principle: no single entity — including GRAVE itself — should ever be able to stop your will from executing.</p>
+      </div>
+
+      <div class="arch-grid">
+        <div class="arch-card reveal">
+          <div class="arch-ico">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 3V21M16 3V21M3 8H21M3 16H21" stroke="currentColor" stroke-width="1.5"/></svg>
+          </div>
+          <h3>Immutable Vaults</h3>
+          <p>Non-upgradable Solidity smart contracts hold each will independently. No admin key, no backdoor, no pause switch.</p>
+        </div>
+        <div class="arch-card reveal">
+          <div class="arch-ico">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M12 2V5M12 19V22M22 12H19M5 12H2M19.07 4.93L16.95 7.05M7.05 16.95L4.93 19.07M19.07 19.07L16.95 16.95M7.05 7.05L4.93 4.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Heartbeat Oracle</h3>
+          <p>Decentralized proof-of-life network verifying check-ins on a schedule you define, with multi-signal fallback to prevent false triggers.</p>
+        </div>
+        <div class="arch-card reveal">
+          <div class="arch-ico">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M17 20H7C5 20 4 19 4 17V7C4 5 5 4 7 4H14L20 10V17C20 19 19 20 17 20Z" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="14" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="14" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
+          </div>
+          <h3>Guardian Network</h3>
+          <p>Optional trusted guardians can co-sign to pause a suspicious trigger — a social safety net without custodial risk.</p>
+        </div>
+        <div class="arch-card reveal">
+          <div class="arch-ico">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3L20 7V12C20 17 16.5 20.5 12 21C7.5 20.5 4 17 4 12V7L12 3Z" stroke="currentColor" stroke-width="1.5"/></svg>
+          </div>
+          <h3>Robinhood Chain Native</h3>
+          <p>Deployed on an Arbitrum-Orbit L2 built for real-world assets — fast finality, deep liquidity, and fees low enough for global inheritance.</p>
+        </div>
+      </div>
+
+      <div class="flow-diagram reveal">
+        <div class="flow-node">
+          <span class="flow-ico">👤</span>
+          <p>Will Creator</p>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node flow-node-main">
+          <span class="flow-ico">🪦</span>
+          <p>GRAVE Vault<br><small>Robinhood Chain</small></p>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node">
+          <span class="flow-ico">📡</span>
+          <p>Heartbeat Oracle</p>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node">
+          <span class="flow-ico">👪</span>
+          <p>Beneficiaries</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ROADMAP ================= -->
+  <section class="section section-alt" id="roadmap">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Roadmap</span>
+        <h2>The path to permanence.</h2>
+      </div>
+
+      <div class="timeline">
+        <div class="tl-item reveal">
+          <div class="tl-dot tl-dot-done"></div>
+          <div class="tl-content">
+            <span class="tl-phase">Q1 — Foundation</span>
+            <h3>Protocol Design &amp; Audit</h3>
+            <p>Whitepaper release, smart contract architecture finalized, independent security audit initiated.</p>
+          </div>
+        </div>
+        <div class="tl-item reveal">
+          <div class="tl-dot tl-dot-active"></div>
+          <div class="tl-content">
+            <span class="tl-phase">Q2 — Testnet</span>
+            <h3>Launch on Robinhood Chain Testnet</h3>
+            <p>Public testnet deployment, Heartbeat Oracle simulation, community stress-testing &amp; bug bounty.</p>
+          </div>
+        </div>
+        <div class="tl-item reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <span class="tl-phase">Q3 — Mainnet</span>
+            <h3>Guardian Network &amp; Mainnet Launch</h3>
+            <p>Guardian staking module goes live, mainnet vaults open on Robinhood Chain.</p>
+          </div>
+        </div>
+        <div class="tl-item reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <span class="tl-phase">Q4 — Expansion</span>
+            <h3>Multi-Chain &amp; RWA Support</h3>
+            <p>Cross-chain vaults and native support for tokenized real-world assets alongside crypto-native holdings.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="section" id="faq">
+    <div class="container container-narrow">
+      <div class="section-head reveal">
+        <span class="eyebrow">FAQ</span>
+        <h2>Questions, answered.</h2>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item reveal" open>
+          <summary>Does GRAVE ever take custody of my assets?</summary>
+          <p>Never. Assets stay in a vault contract you control until — and only until — your predefined conditions are met onchain. GRAVE has no admin key and cannot move funds on its own.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>What happens if I simply forget to check in?</summary>
+          <p>You'll get advance reminders before your check-in window closes, followed by a public grace-period countdown. Nothing executes instantly — there's always time to respond.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>Is a GRAVE will legally binding?</summary>
+          <p>GRAVE is a technical execution layer, not a law firm. It's designed to complement — not replace — your legal will. Always consult local regulations for your jurisdiction.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>Why build on Robinhood Chain specifically?</summary>
+          <p>Robinhood Chain's Arbitrum-Orbit architecture pairs low fees and fast finality with a growing base of tokenized real-world assets — a natural home for a protocol securing real generational wealth.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary>What if my beneficiaries lose access to their wallet?</summary>
+          <p>The Guardian Network supports social-recovery flows for beneficiary wallets, reducing the risk of assets becoming permanently inaccessible after execution.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="cta-section" id="launch">
+    <div class="container cta-inner reveal">
+      <h2>Write the will that writes itself.</h2>
+      <p>Join the testnet and be among the first to secure a legacy that no court, no custodian, and no counterparty can ever touch.</p>
+      <div class="cta-actions">
+        <a href="#" class="btn btn-primary btn-lg">Launch App</a>
+        <a href="#docs" class="btn btn-outline btn-lg" id="docs">Read Whitepaper</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="brand-name">GRAVE</span>
+      <p>The first onchain last will protocol.<br>Built on Robinhood Chain.</p>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Protocol</h4>
+        <a href="#how">How it Works</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#roadmap">Roadmap</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="#">Whitepaper</a>
+        <a href="#">Documentation</a>
+        <a href="#">Audit Report</a>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <a href="#">X / Twitter</a>
+        <a href="#">Discord</a>
+        <a href="#">GitHub</a>
+      </div>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <p>© 2026 GRAVE Protocol. All rights reserved.</p>
+    <p class="footer-disclaimer">GRAVE is experimental software provided as-is. Not legal, financial, or tax advice. Use at your own risk.</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
