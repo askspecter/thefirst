@@ -318,9 +318,10 @@
       const erc = new ethers.Contract(addr, ABI.erc20, provider);
       let sym = short(addr), dec = 18, bal = 0n;
       try { [sym, dec, bal] = await Promise.all([erc.symbol(), erc.decimals(), erc.balanceOf(vaultAddr)]); } catch (_) {}
+      const icon = await tokenIcon(addr);
       const row = document.createElement("div");
       row.className = "asset-row";
-      row.innerHTML = `<span class="asset-sym">${sym}</span><span class="asset-bal">${(+ethers.formatUnits(bal, dec)).toLocaleString(undefined, { maximumFractionDigits: 6 })}</span>`;
+      row.innerHTML = `<span class="asset-left">${tokenAvatar(sym, icon)}<span class="asset-sym">${sym}</span></span><span class="asset-bal">${(+ethers.formatUnits(bal, dec)).toLocaleString(undefined, { maximumFractionDigits: 6 })}</span>`;
       list.appendChild(row);
     }
   }
@@ -376,6 +377,28 @@
   /* ------------------------------------------------------------------ */
   /*  Deposit RWA                                                       */
   /* ------------------------------------------------------------------ */
+  // Token logos aren't onchain (ERC-20 has no image field); we pull them from
+  // the chain's explorer, with a ticker monogram fallback.
+  function tokenAvatar(sym, icon) {
+    const s = (sym || "?").replace(/[<>]/g, "").slice(0, 3);
+    const mono = `<span class="ti-mono"${icon ? ' style="display:none"' : ""}>${s}</span>`;
+    const img = icon
+      ? `<img class="ti-icon" src="${icon}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : "";
+    return `<span class="ti-avatar">${img}${mono}</span>`;
+  }
+
+  const iconCache = {};
+  async function tokenIcon(addr) {
+    if (addr in iconCache) return iconCache[addr];
+    try {
+      const r = await fetch(NET.explorer + "/api/v2/tokens/" + addr);
+      const d = await r.json();
+      iconCache[addr] = d.icon_url || null;
+    } catch (_) { iconCache[addr] = null; }
+    return iconCache[addr];
+  }
+
   // Live token search from the chain's Blockscout explorer (accurate + verified).
   async function searchTokens(q) {
     const box = el("tokenResults");
@@ -390,7 +413,8 @@
         const addr = it.address || it.address_hash || "";
         const sym = (it.symbol || "?").replace(/[<>]/g, "");
         const name = (it.name || "").replace(/[<>]/g, "");
-        return `<button type="button" class="token-item" data-addr="${addr}"><span class="ti-sym">${sym}</span><span class="ti-name">${name}</span></button>`;
+        if (addr) iconCache[addr] = it.icon_url || null;
+        return `<button type="button" class="token-item" data-addr="${addr}">${tokenAvatar(sym, it.icon_url)}<span class="ti-sym">${sym}</span><span class="ti-name">${name}</span></button>`;
       }).join("");
       box.hidden = false;
       box.querySelectorAll(".token-item").forEach((b) => b.addEventListener("click", () => {
