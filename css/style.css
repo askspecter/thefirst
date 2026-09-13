@@ -161,9 +161,10 @@ img{ max-width:100%; display:block; }
 .hero{
   position: relative;
   min-height: 100vh;
+  min-height: 100svh;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   text-align:center;
-  padding: 140px 24px 80px;
+  padding: 140px 24px 108px;
   overflow:hidden;
 }
 .hero-grid{
@@ -494,8 +495,13 @@ img{ max-width:100%; display:block; }
 .cta-actions{ display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; }
 
 /* ===================== FOOTER ===================== */
-.footer{ background: var(--bg); border-top: 1px solid var(--border); padding-top: 64px; position: relative; z-index: 2; }
-.footer-inner{ display:flex; justify-content:space-between; gap: 60px; flex-wrap:wrap; padding-bottom: 48px; }
+.footer{
+  background: var(--bg); border-top: 1px solid var(--border);
+  padding-top: 56px;
+  padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+  position: relative; z-index: 2;
+}
+.footer-inner{ display:flex; justify-content:space-between; gap: 60px; flex-wrap:wrap; padding-bottom: 44px; }
 .footer-brand p{ color: var(--text-faint); font-size:0.85rem; margin-top:14px; line-height:1.6; }
 .footer-cols{ display:flex; gap: 64px; flex-wrap:wrap; }
 .footer-col h4{ font-size:0.82rem; color: var(--text); margin-bottom:16px; }
@@ -504,7 +510,7 @@ img{ max-width:100%; display:block; }
 .footer-col a:hover{ color: var(--accent); }
 .footer-bottom{
   display:flex; justify-content:space-between; gap: 16px; flex-wrap:wrap;
-  padding: 22px 0; border-top: 1px solid var(--border);
+  padding: 22px 0 0; border-top: 1px solid var(--border);
   font-size: 0.78rem; color: var(--text-faint);
 }
 .footer-disclaimer{ max-width: 480px; text-align:right; }
@@ -561,6 +567,20 @@ img{ max-width:100%; display:block; }
   .footer-inner{ flex-direction:column; gap: 36px; }
   .footer-bottom{ flex-direction:column; }
   .footer-disclaimer{ text-align:left; }
+
+  /* hero: tighter so everything fits and the scroll cue stays centered at the bottom */
+  .hero{ padding: 104px 20px 68px; }
+  .badge-pill{ margin-bottom: 20px; }
+  .hero-title{ margin-bottom: 16px; }
+  .hero-sub{ margin-bottom: 22px; }
+  .hero-actions{ margin-bottom: 22px; }
+  .hero-badges{ gap: 9px 18px; }
+  .scroll-cue{ bottom: 18px; }
+  .scroll-cue span{ height: 24px; }
+}
+/* hide the scroll hint only when the viewport is genuinely too short */
+@media (max-height: 720px){
+  .scroll-cue{ display: none; }
 }
 @media (max-width: 420px){
   .hero-actions{ flex-direction:column; width:100%; }
