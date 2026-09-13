@@ -90,11 +90,6 @@
     finally { btn.disabled = false; btn.innerHTML = label; }
   }
 
-  function looksLikeAllowlist(e) {
-    const m = (errMsg(e) || "").toLowerCase();
-    return m.includes("revert") || m.includes("allow") || m.includes("filter") || m.includes("denied");
-  }
-
   async function deploy() {
     if (!signer) return;
     const btn = el("deployBtn");
@@ -114,12 +109,8 @@
       toast("Factory deployed.", { link: NET.explorer + "/address/" + addr });
       render();
     } catch (e) {
-      if (looksLikeAllowlist(e)) {
-        toast("Deploy rejected — new addresses must run step 3 (Activate) first, then deploy.", { error: true, timeout: 9000 });
-        el("step-activate").scrollIntoView({ behavior: "smooth", block: "center" });
-      } else {
-        toast(errMsg(e), { error: true });
-      }
+      console.error("deploy error:", e);
+      toast("Deploy failed: " + errMsg(e), { error: true, timeout: 14000 });
     }
     finally { btn.disabled = false; btn.innerHTML = label; }
   }
