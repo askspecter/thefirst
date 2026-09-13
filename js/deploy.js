@@ -29,7 +29,6 @@
     el("step-connect").hidden = !!account;
     const onNet = account && chainId === NET.chainId;
     el("step-network").hidden = !(account && !onNet);
-    el("step-activate").hidden = !onNet;
     el("step-deploy").hidden = !onNet;
     const existing = CFG.FACTORY[CFG.DEFAULT_NETWORK] || localStorageGet();
     if (existing) { el("existingWrap").hidden = false; el("existingAddr").textContent = existing; el("existingAddr").href = NET.explorer + "/address/" + existing; }
@@ -74,20 +73,18 @@
     }
   }
 
-  // Robinhood Chain rejects contract creation from an address it has never
-  // seen. A single normal (non-creation) tx from the address fixes that.
-  async function activate() {
-    if (!signer) return;
-    const btn = el("activateBtn");
-    const label = btn.innerHTML;
-    btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Activating…';
-    try {
-      const tx = await signer.sendTransaction({ to: account, value: 0n });
-      toast("Activating your address…", { link: NET.explorer + "/tx/" + tx.hash, timeout: 0 });
-      await tx.wait();
-      toast("Address activated. You can deploy now.");
-    } catch (e) { toast(errMsg(e), { error: true }); }
-    finally { btn.disabled = false; btn.innerHTML = label; }
+  // Canonical deterministic (CREATE2) deployer, present on most EVM chains.
+  const CREATE2_DEPLOYER = "0x4e59b44847b379578588920cA78FbF26c0B4956C";
+  const SALT = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+  function finish(addr) {
+    try { localStorage.setItem("grave_factory_" + CFG.DEFAULT_NETWORK, addr); } catch (_) {}
+    el("resultWrap").hidden = false;
+    el("resultAddr").textContent = addr;
+    el("resultAddr").href = NET.explorer + "/address/" + addr;
+    el("configLine").textContent = `FACTORY: { ${CFG.DEFAULT_NETWORK}: "${addr}" }`;
+    toast("Factory deployed.", { link: NET.explorer + "/address/" + addr });
+    render();
   }
 
   async function deploy() {
@@ -96,18 +93,30 @@
     const label = btn.innerHTML;
     btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Deploying…';
     try {
-      const factory = new ethers.ContractFactory(ART.factory.abi, ART.factory.bytecode, signer);
-      const contract = await factory.deploy();
-      toast("Deployment sent, waiting for confirmation…", { link: NET.explorer + "/tx/" + contract.deploymentTransaction().hash, timeout: 0 });
-      await contract.waitForDeployment();
-      const addr = await contract.getAddress();
-      try { localStorage.setItem("grave_factory_" + CFG.DEFAULT_NETWORK, addr); } catch (_) {}
-      el("resultWrap").hidden = false;
-      el("resultAddr").textContent = addr;
-      el("resultAddr").href = NET.explorer + "/address/" + addr;
-      el("configLine").textContent = `FACTORY: { ${CFG.DEFAULT_NETWORK}: "${addr}" }`;
-      toast("Factory deployed.", { link: NET.explorer + "/address/" + addr });
-      render();
+      const initCode = ART.factory.bytecode;
+      const deployerCode = await provider.getCode(CREATE2_DEPLOYER).catch(() => "0x");
+
+      if (deployerCode && deployerCode !== "0x") {
+        // Mobile-friendly path: a normal tx to the CREATE2 deployer (has a `to`,
+        // and the creator is the deployer contract — bypasses wallet + allowlist limits).
+        const predicted = ethers.getCreate2Address(CREATE2_DEPLOYER, SALT, ethers.keccak256(initCode));
+        const already = await provider.getCode(predicted).catch(() => "0x");
+        if (already && already !== "0x") { finish(predicted); return; }
+
+        const tx = await signer.sendTransaction({ to: CREATE2_DEPLOYER, data: SALT + initCode.slice(2) });
+        toast("Deployment sent, waiting for confirmation…", { link: NET.explorer + "/tx/" + tx.hash, timeout: 0 });
+        await tx.wait();
+        const after = await provider.getCode(predicted).catch(() => "0x");
+        if (!after || after === "0x") throw new Error("Deploy tx mined but no contract code found at the expected address.");
+        finish(predicted);
+      } else {
+        // Fallback: standard contract-creation tx (needs a wallet that allows it).
+        const factory = new ethers.ContractFactory(ART.factory.abi, initCode, signer);
+        const contract = await factory.deploy();
+        toast("Deployment sent, waiting for confirmation…", { link: NET.explorer + "/tx/" + contract.deploymentTransaction().hash, timeout: 0 });
+        await contract.waitForDeployment();
+        finish(await contract.getAddress());
+      }
     } catch (e) {
       console.error("deploy error:", e);
       toast("Deploy failed: " + errMsg(e), { error: true, timeout: 14000 });
@@ -124,7 +133,6 @@
     el("connectBtn").addEventListener("click", connect);
     el("connectBtn2").addEventListener("click", connect);
     el("switchNetBtn").addEventListener("click", switchNet);
-    el("activateBtn").addEventListener("click", activate);
     el("deployBtn").addEventListener("click", deploy);
     el("copyBtn").addEventListener("click", copyConfig);
 

@@ -55,15 +55,9 @@
         <div class="card-actions"><button class="btn btn-primary" id="switchNetBtn">Switch network</button></div>
       </div>
 
-      <div class="card card-wide" id="step-activate" hidden style="margin-bottom:18px;">
-        <div class="card-head"><h3>3 · Activate your address</h3></div>
-        <p class="panel-lead">Robinhood Chain rejects contract creation from an address it has never seen. Send one tiny transaction to yourself first (0 ETH, gas only) so the chain recognizes your address — required once per wallet.</p>
-        <div class="card-actions"><button class="btn btn-primary" id="activateBtn">Activate address (1 tx)</button></div>
-      </div>
-
       <div class="card card-wide" id="step-deploy" hidden>
-        <div class="card-head"><h3>4 · Deploy factory</h3></div>
-        <p class="panel-lead">This deploys <code>GraveFactory</code>. Confirm the transaction in your wallet and pay the gas. If it reverts with a new address, activate it first (step&nbsp;3).</p>
+        <div class="card-head"><h3>3 · Deploy factory</h3></div>
+        <p class="panel-lead">Deploys <code>GraveFactory</code> via the CREATE2 deployer — a normal transaction that mobile wallets allow, so it works on phones and gets past the "new address" restriction. Confirm in your wallet and pay the gas.</p>
         <div class="card-actions"><button class="btn btn-primary btn-lg" id="deployBtn">Deploy Factory</button></div>
 
         <div id="resultWrap" hidden style="margin-top:22px;">
