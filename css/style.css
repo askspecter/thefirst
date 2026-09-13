@@ -88,12 +88,12 @@ img{ max-width:100%; display:block; }
 }
 .brand{ display:flex; align-items:center; gap:10px; }
 .brand-mark{
-  display:inline-flex; border-radius: 8px; overflow:hidden;
+  display:inline-flex;
   filter: drop-shadow(0 0 8px rgba(255,255,255,0.35));
 }
-.brand-mark img{ width:34px; height:34px; object-fit:cover; border-radius:8px; }
+.brand-mark img{ width:34px; height:34px; object-fit:contain; }
 .footer-brand-mark{ display:flex; align-items:center; gap:10px; margin-bottom: 2px; }
-.footer-brand-mark img{ border-radius:7px; }
+.footer-brand-mark img{ width:30px; height:30px; object-fit:contain; }
 .brand-name{
   font-family: var(--font-display);
   font-weight: 700;
@@ -393,7 +393,8 @@ img{ max-width:100%; display:block; }
   min-width: 110px;
 }
 .flow-node small{ color: var(--text-faint); }
-.flow-ico{ font-size:1.6rem; }
+.flow-ico{ display:flex; align-items:center; justify-content:center; color: var(--text-dim); }
+.flow-node-main .flow-ico{ color: var(--accent); }
 .flow-node-main{
   padding: 14px 18px; border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong);
