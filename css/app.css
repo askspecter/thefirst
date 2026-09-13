@@ -137,6 +137,11 @@ textarea{ resize: vertical; }
 .toast.error{ border-color: rgba(255,107,107,0.5); }
 .toast .toast-link{ color: var(--accent); text-decoration: underline; }
 
+.code-block{
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 16px; overflow-x: auto; margin: 6px 0 4px;
+}
+.code-block code{ background: none; padding: 0; font-size: 0.82rem; color: var(--text-dim); white-space: pre; }
 .spin{ display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,0.3); border-top-color:#0a0a0a; border-radius:50%; animation: spin .7s linear infinite; vertical-align:-2px; margin-right:6px; }
 @keyframes spin{ to{ transform: rotate(360deg); } }
 

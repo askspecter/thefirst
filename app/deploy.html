@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRAVE — Deploy</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+
+<header class="nav scrolled" id="nav">
+  <div class="nav-inner">
+    <a href="/index.html" class="brand">
+      <span class="brand-mark" aria-hidden="true"><img src="/assets/logo.png" alt="" width="34" height="34"></span>
+      <span class="brand-name">GRAVE</span>
+    </a>
+    <div class="app-nav-right">
+      <button class="btn btn-primary" id="connectBtn">Connect Wallet</button>
+    </div>
+  </div>
+</header>
+
+<main class="app-shell">
+  <div class="container">
+    <div class="panel">
+      <div class="panel-head">
+        <span class="eyebrow">Admin · One-time</span>
+        <h1>Deploy the GRAVE Factory.</h1>
+        <p class="panel-lead">Deploy the protocol's factory contract to <strong id="netName">Robinhood Chain</strong> from your own funded wallet. You sign the transaction and pay gas in ETH — no private keys are ever shared. Deploy once; every vault is created through it.</p>
+      </div>
+
+      <div id="existingWrap" class="card card-wide" hidden style="margin-bottom:18px;">
+        <div class="card-head"><h3>Already deployed</h3></div>
+        <p class="panel-lead" style="margin:0;">A factory address is already configured/saved: <a class="toast-link" id="existingAddr" href="#" target="_blank" rel="noopener"></a>. Deploying again creates a separate factory.</p>
+      </div>
+
+      <div class="card card-wide" id="step-connect">
+        <div class="card-head"><h3>1 · Connect wallet</h3></div>
+        <p class="panel-lead">Connect the wallet you want to deploy from. It needs a little ETH on the target network for gas.</p>
+        <div class="card-actions"><button class="btn btn-primary" id="connectBtn2">Connect Wallet</button></div>
+      </div>
+
+      <div class="card card-wide" id="step-network" hidden>
+        <div class="card-head"><h3>2 · Switch network</h3></div>
+        <p class="panel-lead">Your wallet is on the wrong network. Switch to the target chain to continue.</p>
+        <div class="card-actions"><button class="btn btn-primary" id="switchNetBtn">Switch network</button></div>
+      </div>
+
+      <div class="card card-wide" id="step-deploy" hidden>
+        <div class="card-head"><h3>3 · Deploy factory</h3></div>
+        <p class="panel-lead">This deploys <code>GraveFactory</code>. Confirm the transaction in your wallet and pay the gas.</p>
+        <div class="card-actions"><button class="btn btn-primary btn-lg" id="deployBtn">Deploy Factory</button></div>
+
+        <div id="resultWrap" hidden style="margin-top:22px;">
+          <div class="card-head"><h3>Deployed</h3></div>
+          <p class="panel-lead" style="margin-bottom:10px;">Factory address: <a class="toast-link" id="resultAddr" href="#" target="_blank" rel="noopener"></a></p>
+          <p class="panel-hint">Saved for this browser so the app works immediately. To make it the default for everyone, paste it into <code>js/config.js</code> and redeploy the site:</p>
+          <pre class="code-block"><code id="configLine"></code></pre>
+          <div class="card-actions">
+            <button class="btn btn-outline" id="copyBtn">Copy address</button>
+            <a class="btn btn-primary" href="/">Open the app</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/deploy-artifacts.js"></script>
+<script src="/js/deploy.js"></script>
+<script type="module" src="/js/wallet.js"></script>
+</body>
+</html>

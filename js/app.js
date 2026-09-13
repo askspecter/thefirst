@@ -3,7 +3,16 @@
 
   const CFG = window.GRAVE_CONFIG;
   const NET = CFG.NETWORKS[CFG.DEFAULT_NETWORK];
-  const FACTORY_ADDR = CFG.FACTORY[CFG.DEFAULT_NETWORK];
+  const FACTORY_ADDR = resolveFactory();
+  function resolveFactory() {
+    const configured = CFG.FACTORY[CFG.DEFAULT_NETWORK];
+    if (configured) return configured;
+    try {
+      const saved = localStorage.getItem("grave_factory_" + CFG.DEFAULT_NETWORK);
+      if (saved && ethers.isAddress(saved)) return saved;
+    } catch (_) {}
+    return "";
+  }
   const { ABI } = CFG;
 
   const el = (id) => document.getElementById(id);

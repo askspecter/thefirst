@@ -4,6 +4,11 @@
       "source": "/",
       "has": [{ "type": "host", "value": "app.grave.cash" }],
       "destination": "/app/index.html"
+    },
+    {
+      "source": "/deploy",
+      "has": [{ "type": "host", "value": "app.grave.cash" }],
+      "destination": "/app/deploy.html"
     }
   ]
 }
