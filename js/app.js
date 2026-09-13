@@ -376,6 +376,32 @@
   /* ------------------------------------------------------------------ */
   /*  Deposit RWA                                                       */
   /* ------------------------------------------------------------------ */
+  // Live token search from the chain's Blockscout explorer (accurate + verified).
+  async function searchTokens(q) {
+    const box = el("tokenResults");
+    if (!q || q.trim().length < 1) { box.hidden = true; box.innerHTML = ""; return; }
+    try {
+      const url = NET.explorer + "/api/v2/tokens?type=ERC-20&q=" + encodeURIComponent(q.trim());
+      const r = await fetch(url);
+      const data = await r.json();
+      const items = (data.items || []).slice(0, 12);
+      if (!items.length) { box.innerHTML = '<div class="token-empty">No tokens found</div>'; box.hidden = false; return; }
+      box.innerHTML = items.map((it) => {
+        const addr = it.address || it.address_hash || "";
+        const sym = (it.symbol || "?").replace(/[<>]/g, "");
+        const name = (it.name || "").replace(/[<>]/g, "");
+        return `<button type="button" class="token-item" data-addr="${addr}"><span class="ti-sym">${sym}</span><span class="ti-name">${name}</span></button>`;
+      }).join("");
+      box.hidden = false;
+      box.querySelectorAll(".token-item").forEach((b) => b.addEventListener("click", () => {
+        el("depToken").value = b.dataset.addr;
+        el("tokenSearch").value = b.querySelector(".ti-sym").textContent;
+        box.hidden = true;
+        refreshDepToken();
+      }));
+    } catch (_) { box.hidden = true; }
+  }
+
   let depTokenMeta = null;
   async function refreshDepToken() {
     const addr = el("depToken").value.trim();
@@ -447,6 +473,11 @@
     el("depositBtn").addEventListener("click", depositToken);
     let depTimer;
     el("depToken").addEventListener("input", () => { clearTimeout(depTimer); depTimer = setTimeout(refreshDepToken, 350); });
+    let searchTimer;
+    el("tokenSearch").addEventListener("input", (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => searchTokens(e.target.value), 300); });
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".token-search")) { const b = el("tokenResults"); if (b) b.hidden = true; }
+    });
 
     // AppKit bridge: react to wallet/account/network changes from the modal.
     window.addEventListener("grave:wallet", async (e) => {

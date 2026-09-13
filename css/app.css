@@ -137,6 +137,26 @@ textarea{ resize: vertical; }
 .toast.error{ border-color: rgba(255,107,107,0.5); }
 .toast .toast-link{ color: var(--accent); text-decoration: underline; }
 
+/* token search */
+.token-search{ position: relative; }
+.token-results{
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
+  background: var(--surface-2); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm); overflow: hidden; max-height: 280px; overflow-y: auto;
+  box-shadow: 0 16px 50px -20px rgba(0,0,0,0.8);
+}
+.token-item{
+  display: flex; align-items: baseline; gap: 10px; width: 100%;
+  background: none; border: none; border-bottom: 1px solid var(--border);
+  padding: 12px 14px; cursor: pointer; text-align: left; color: var(--text);
+  font-family: var(--font-mono); transition: background .15s ease;
+}
+.token-item:last-child{ border-bottom: none; }
+.token-item:hover{ background: rgba(255,255,255,0.05); }
+.ti-sym{ font-weight: 700; font-size: 0.9rem; }
+.ti-name{ font-size: 0.78rem; color: var(--text-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.token-empty{ padding: 12px 14px; font-size: 0.82rem; color: var(--text-faint); }
+
 .code-block{
   background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
   padding: 14px 16px; overflow-x: auto; margin: 6px 0 4px;

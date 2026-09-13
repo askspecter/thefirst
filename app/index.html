@@ -160,6 +160,14 @@
         <!-- Deposit RWA -->
         <div class="card card-wide" id="depositCard">
           <div class="card-head"><h3>Deposit RWA Stock Token</h3></div>
+          <div class="field" style="margin-bottom:16px;">
+            <label for="tokenSearch">Find a stock token</label>
+            <div class="token-search">
+              <input type="text" id="tokenSearch" placeholder="Search ticker or name — AAPL, TSLA, NVDA…" spellcheck="false" autocomplete="off">
+              <div class="token-results" id="tokenResults" hidden></div>
+            </div>
+            <small>Live from the Robinhood Chain explorer. Or paste an address below.</small>
+          </div>
           <div class="field-row">
             <div class="field">
               <label for="depToken">Token address (ERC-20)</label>
