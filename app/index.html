@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRAVE — App</title>
+<meta name="description" content="Create and manage your onchain last will on Robinhood Chain. Lock RWA Stock Tokens into a non-custodial GRAVE Vault.">
+<link rel="icon" href="../assets/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="icon" href="../assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+
+<!-- ================= NAV ================= -->
+<header class="nav scrolled" id="nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <img src="../assets/logo.png" alt="" width="34" height="34">
+      </span>
+      <span class="brand-name">GRAVE</span>
+    </a>
+
+    <div class="app-nav-right">
+      <span class="net-pill" id="netPill" hidden>
+        <span class="net-dot"></span>
+        <span id="netLabel">Robinhood Chain</span>
+      </span>
+      <button class="btn btn-primary" id="connectBtn">Connect Wallet</button>
+    </div>
+  </div>
+</header>
+
+<main class="app-shell">
+  <div class="container">
+
+    <!-- STATE: connect -->
+    <section class="panel panel-center" id="panel-connect">
+      <div class="panel-emblem"><img src="../assets/logo.png" alt="" width="72" height="72"></div>
+      <h1>Your onchain last will.</h1>
+      <p class="panel-lead">Connect a wallet on Robinhood Chain to create a non-custodial GRAVE Vault, lock RWA Stock Tokens, and set the beneficiaries who inherit them.</p>
+      <button class="btn btn-primary btn-lg" id="connectBtn2">Connect Wallet</button>
+      <p class="panel-hint" id="noWalletHint" hidden>No EVM wallet detected. Install Robinhood Wallet or MetaMask to continue.</p>
+    </section>
+
+    <!-- STATE: wrong network -->
+    <section class="panel panel-center" id="panel-network" hidden>
+      <div class="panel-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 3L20 7V12C20 17 16.5 20.5 12 21C7.5 20.5 4 17 4 12V7L12 3Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4M12 15.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <h1>Wrong network.</h1>
+      <p class="panel-lead">GRAVE runs on <strong id="targetNetName">Robinhood Chain</strong>. Switch your wallet to continue.</p>
+      <button class="btn btn-primary btn-lg" id="switchNetBtn">Switch to Robinhood Chain</button>
+      <p class="panel-hint" id="faucetHint" hidden></p>
+    </section>
+
+    <!-- STATE: factory not deployed -->
+    <section class="panel panel-center" id="panel-nofactory" hidden>
+      <div class="panel-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 3V21M16 3V21M3 8H21M3 16H21" stroke="currentColor" stroke-width="1.5"/></svg>
+      </div>
+      <h1>Protocol not yet deployed.</h1>
+      <p class="panel-lead">The GRAVE Factory address isn't set for this network. Deploy the contracts (see <code>contracts/README.md</code>) and add the address to <code>js/config.js</code>.</p>
+    </section>
+
+    <!-- STATE: create vault -->
+    <section class="panel" id="panel-create" hidden>
+      <div class="panel-head">
+        <span class="eyebrow">New Vault</span>
+        <h1>Create your GRAVE Vault.</h1>
+        <p class="panel-lead">Define how long you can go silent, who inherits, and their shares. You keep full control until the countdown lapses.</p>
+      </div>
+
+      <form class="form" id="createForm">
+        <div class="field-row">
+          <div class="field">
+            <label for="interval">Check-in interval</label>
+            <div class="input-suffix">
+              <input type="number" id="interval" min="1" value="90" required>
+              <span>days</span>
+            </div>
+            <small>How long you may go silent before the grace period begins.</small>
+          </div>
+          <div class="field">
+            <label for="grace">Grace period</label>
+            <div class="input-suffix">
+              <input type="number" id="grace" min="0" value="30" required>
+              <span>days</span>
+            </div>
+            <small>Extra buffer after a missed check-in before execution unlocks.</small>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Beneficiaries</label>
+          <div id="benRows" class="ben-rows"></div>
+          <button type="button" class="btn btn-outline btn-sm" id="addBenBtn">+ Add beneficiary</button>
+          <small id="benSum" class="ben-sum">Total: 0%</small>
+        </div>
+
+        <div class="field">
+          <label for="guardians">Guardians <span class="opt">(optional)</span></label>
+          <textarea id="guardians" rows="2" placeholder="0x... , 0x...  — addresses that may check in on your behalf"></textarea>
+          <small>A social safety net. Guardians can reset your countdown but can never move funds.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" id="createBtn">Create Vault</button>
+      </form>
+    </section>
+
+    <!-- STATE: dashboard -->
+    <section class="panel" id="panel-dashboard" hidden>
+      <div class="panel-head dash-head">
+        <div>
+          <span class="eyebrow">Your Vault</span>
+          <h1 id="vaultTitle">GRAVE Vault</h1>
+          <a class="vault-addr" id="vaultAddrLink" href="#" target="_blank" rel="noopener"></a>
+        </div>
+        <span class="status-badge" id="statusBadge">—</span>
+      </div>
+
+      <div class="dash-grid">
+        <!-- Status / heartbeat -->
+        <div class="card card-wide">
+          <div class="card-head"><h3>Proof of Life</h3></div>
+          <div class="countdown" id="countdown">
+            <div class="cd-block"><span id="cdDays">--</span><small>days</small></div>
+            <div class="cd-block"><span id="cdHours">--</span><small>hrs</small></div>
+            <div class="cd-block"><span id="cdMins">--</span><small>min</small></div>
+            <div class="cd-block"><span id="cdSecs">--</span><small>sec</small></div>
+          </div>
+          <p class="cd-caption" id="cdCaption">until execution unlocks</p>
+          <div class="card-actions">
+            <button class="btn btn-primary" id="checkInBtn">Check In — I'm alive</button>
+            <button class="btn btn-outline" id="executeBtn" hidden>Trigger Execution</button>
+          </div>
+        </div>
+
+        <!-- Assets -->
+        <div class="card">
+          <div class="card-head"><h3>Assets Locked</h3></div>
+          <div class="asset-row"><span class="asset-sym">ETH</span><span class="asset-bal" id="ethBal">—</span></div>
+          <div id="tokenList"></div>
+        </div>
+
+        <!-- Beneficiaries -->
+        <div class="card">
+          <div class="card-head"><h3>Beneficiaries</h3></div>
+          <div id="benList"></div>
+        </div>
+
+        <!-- Deposit RWA -->
+        <div class="card card-wide" id="depositCard">
+          <div class="card-head"><h3>Deposit RWA Stock Token</h3></div>
+          <div class="field-row">
+            <div class="field">
+              <label for="depToken">Token address (ERC-20)</label>
+              <input type="text" id="depToken" placeholder="0x..." spellcheck="false">
+              <small id="depTokenMeta"></small>
+            </div>
+            <div class="field">
+              <label for="depAmount">Amount</label>
+              <input type="number" id="depAmount" min="0" step="any" placeholder="0.0">
+              <small id="depWalletBal"></small>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-outline" id="approveBtn">Approve</button>
+            <button class="btn btn-primary" id="depositBtn">Deposit</button>
+          </div>
+        </div>
+
+        <!-- Claim (beneficiary) -->
+        <div class="card card-wide" id="claimCard" hidden>
+          <div class="card-head"><h3>Your Inheritance</h3></div>
+          <p class="panel-lead" id="claimText">This vault has executed. Claim your share.</p>
+          <div id="claimPreview"></div>
+          <div class="card-actions">
+            <button class="btn btn-primary btn-lg" id="claimBtn">Claim my share</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- toast -->
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/app.js"></script>
+</body>
+</html>
