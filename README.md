@@ -26,11 +26,22 @@ their pre-defined shares — no probate, no custodian, no admin key.
 
 Gas is paid in ETH. Testnet faucet: https://faucet.testnet.chain.robinhood.com
 
+## Wallet connect
+
+The dApp uses **Reown AppKit** (WalletConnect) — the multi-wallet modal with
+Trust, MetaMask, Binance, SafePal and 80+ wallets, incl. mobile via QR/deeplink
+(`js/wallet.js`). Set `WALLETCONNECT_PROJECT_ID` in `js/config.js` to a free
+project id from https://cloud.reown.com and allowlist your domain there. The
+committed default is Reown's public localhost-only demo id — replace it before
+deploying. If the id is empty or AppKit can't load, the dApp falls back to a
+basic injected-wallet connect automatically.
+
 ## Bring the dApp live
 
 1. Deploy the factory — see `contracts/README.md` (Foundry).
 2. Paste the factory address into `js/config.js` → `FACTORY.testnet` / `FACTORY.mainnet`.
-3. Serve the site: `python3 -m http.server 8000`, open `http://localhost:8000`,
+3. Put your Reown project id in `js/config.js` → `WALLETCONNECT_PROJECT_ID`.
+4. Serve the site: `python3 -m http.server 8000`, open `http://localhost:8000`,
    click **Launch App**, connect a wallet, and add the Robinhood Chain network
    when prompted.
 

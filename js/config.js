@@ -4,6 +4,14 @@ window.GRAVE_CONFIG = {
   // protocol contracts are unaudited. Switch to "mainnet" once deployed & audited.
   DEFAULT_NETWORK: "testnet",
 
+  // Reown AppKit (WalletConnect) project id — powers the multi-wallet modal
+  // (Trust, MetaMask, Binance, SafePal, 80+ wallets incl. mobile via QR/deeplink).
+  // Get a free one at https://cloud.reown.com and allowlist your domain.
+  // The default below is Reown's public localhost-only demo id — REPLACE IT with
+  // your own before deploying, or the modal won't authorize on your domain.
+  // Leave empty ("") to fall back to a basic injected-wallet connect.
+  WALLETCONNECT_PROJECT_ID: "b56e18d47c72ab683b10814fe9495694",
+
   NETWORKS: {
     mainnet: {
       key: "mainnet",

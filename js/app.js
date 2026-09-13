@@ -15,6 +15,8 @@
   let chainId = null;
   let vaultAddr = null;
   let cdTimer = null;
+  let usingAppKit = false;
+  const APPKIT_CONFIGURED = !!CFG.WALLETCONNECT_PROJECT_ID;
 
   /* ------------------------------------------------------------------ */
   /*  UI helpers                                                         */
@@ -69,18 +71,39 @@
   /* ------------------------------------------------------------------ */
   /*  Wallet                                                            */
   /* ------------------------------------------------------------------ */
+  // Primary entry: prefer the Reown AppKit multi-wallet modal; else injected.
   async function connect() {
+    if (window.GraveWallet && window.GraveWallet.available) {
+      usingAppKit = true;
+      window.GraveWallet.open();
+      return;
+    }
+    if (APPKIT_CONFIGURED && !window.GraveWallet) {
+      toast("Wallet options are still loading — try again in a moment.");
+      return;
+    }
+    return connectInjected();
+  }
+
+  // Basic EIP-1193 injected connect (fallback).
+  async function connectInjected() {
     if (!window.ethereum) { el("noWalletHint").hidden = false; return; }
+    usingAppKit = false;
     provider = new ethers.BrowserProvider(window.ethereum, "any");
     try {
       const accs = await provider.send("eth_requestAccounts", []);
-      account = ethers.getAddress(accs[0]);
-      signer = await provider.getSigner();
-      const nw = await provider.getNetwork();
-      chainId = Number(nw.chainId);
-      updateNav();
-      await route();
+      await onConnected(window.ethereum, accs[0]);
     } catch (e) { toast(errMsg(e), { error: true }); }
+  }
+
+  // Shared: build ethers provider/signer from any EIP-1193 source, then route.
+  async function onConnected(eip1193, address, cid) {
+    provider = new ethers.BrowserProvider(eip1193, "any");
+    signer = await provider.getSigner();
+    account = ethers.getAddress(address);
+    chainId = cid != null ? Number(cid) : Number((await provider.getNetwork()).chainId);
+    updateNav();
+    await route();
   }
 
   function updateNav() {
@@ -95,6 +118,10 @@
   }
 
   async function switchNetwork() {
+    if (usingAppKit && window.GraveWallet) {
+      try { window.GraveWallet.switchNetwork(); } catch (e) { toast(errMsg(e), { error: true }); }
+      return;
+    }
     if (!window.ethereum) return;
     try {
       await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: NET.chainIdHex }] });
@@ -402,24 +429,49 @@
     let depTimer;
     el("depToken").addEventListener("input", () => { clearTimeout(depTimer); depTimer = setTimeout(refreshDepToken, 350); });
 
-    if (window.ethereum) {
-      window.ethereum.on("accountsChanged", async (accs) => {
-        if (!accs.length) { account = null; signer = null; updateNav(); showPanel("connect"); return; }
-        account = ethers.getAddress(accs[0]);
-        signer = await provider.getSigner();
-        updateNav();
-        await route();
-      });
-      window.ethereum.on("chainChanged", async (hex) => {
-        chainId = parseInt(hex, 16);
-        updateNav();
-        await route();
-      });
-      // eager reconnect if already authorized
-      window.ethereum.request({ method: "eth_accounts" }).then((accs) => { if (accs && accs.length) connect(); });
+    // AppKit bridge: react to wallet/account/network changes from the modal.
+    window.addEventListener("grave:wallet", async (e) => {
+      const d = e.detail || {};
+      if (d.isConnected && d.provider && d.address) {
+        usingAppKit = true;
+        try { await onConnected(d.provider, d.address, d.chainId); }
+        catch (err) { toast(errMsg(err), { error: true }); }
+      } else if (!d.isConnected && usingAppKit) {
+        account = null; signer = null; provider = null;
+        updateNav(); showPanel("connect");
+      }
+    });
+
+    if (!APPKIT_CONFIGURED) {
+      enableInjectedFallback();
+    } else {
+      // If AppKit fails to load, quietly fall back to injected wallets.
+      window.addEventListener("grave:wallet-ready", (e) => {
+        if (!e.detail || !e.detail.available) enableInjectedFallback();
+      }, { once: true });
     }
 
     showPanel("connect");
+  }
+
+  function enableInjectedFallback() {
+    if (!window.ethereum) return;
+    window.ethereum.on("accountsChanged", async (accs) => {
+      if (usingAppKit) return;
+      if (!accs.length) { account = null; signer = null; updateNav(); showPanel("connect"); return; }
+      account = ethers.getAddress(accs[0]);
+      signer = await provider.getSigner();
+      updateNav();
+      await route();
+    });
+    window.ethereum.on("chainChanged", async (hex) => {
+      if (usingAppKit) return;
+      chainId = parseInt(hex, 16);
+      updateNav();
+      await route();
+    });
+    // eager reconnect if already authorized
+    window.ethereum.request({ method: "eth_accounts" }).then((accs) => { if (accs && accs.length) connectInjected(); });
   }
 
   init();
