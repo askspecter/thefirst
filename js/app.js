@@ -540,7 +540,7 @@
   // (works with Google/Apple Calendar, which deliver email + push) plus an
   // optional in-browser notification when the tab is open near the deadline.
   function publicVaultUrl() {
-    return location.origin + "/app/vault.html?address=" + vaultAddr;
+    return location.origin + "/app/vault?address=" + vaultAddr;
   }
 
   async function setReminder() {
