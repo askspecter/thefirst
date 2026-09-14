@@ -175,11 +175,82 @@ textarea{ resize: vertical; }
 .spin{ display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,0.3); border-top-color:#0a0a0a; border-radius:50%; animation: spin .7s linear infinite; vertical-align:-2px; margin-right:6px; }
 @keyframes spin{ to{ transform: rotate(360deg); } }
 
+/* dashboard header right cluster */
+.dash-head-right{ display:flex; align-items:center; gap: 10px; flex-shrink:0; }
+
+/* proof-of-life status + progress */
+.life-head{ display:flex; align-items:center; justify-content:space-between; }
+.life-state{
+  font-family: var(--font-mono); font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase;
+  padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-dim);
+}
+.life-state.active{ color: var(--accent); border-color: var(--border-strong); }
+.life-state.grace{ color: #e8c26b; border-color: rgba(232,194,107,0.45); }
+.life-state.expired{ color: var(--danger); border-color: rgba(255,107,107,0.45); }
+.life-state.executed{ color: var(--danger); border-color: rgba(255,107,107,0.45); }
+
+.life-track{
+  display:flex; gap: 4px; height: 12px; margin: 6px 0 12px;
+}
+.life-seg{ position: relative; height: 100%; border-radius: 6px; overflow: hidden; background: var(--bg); border: 1px solid var(--border); }
+.life-seg-interval{ flex: 1; }
+.life-seg-grace{ flex: 1; }
+.life-fill{ position:absolute; inset:0; width:0; background: linear-gradient(90deg, #6f6f6c, #f2f2f0); transition: width .6s ease; }
+.life-fill-grace{ background: linear-gradient(90deg, #b99a3d, #e8c26b); }
+.life-legend{ display:flex; flex-wrap:wrap; gap: 6px 18px; font-size: 0.74rem; color: var(--text-faint); margin-bottom: 18px; }
+.life-legend b{ color: var(--text-dim); font-weight:600; }
+.life-legend i{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; vertical-align:1px; }
+.life-legend .dot-interval{ background: #f2f2f0; }
+.life-legend .dot-grace{ background: #e8c26b; }
+.life-legend .life-last{ margin-left:auto; }
+.life-hint{ font-size: 0.8rem; color: var(--text-faint); margin-top: 14px; }
+.life-hint.warn{ color: #e8c26b; }
+
+/* beneficiaries with expandable allocation */
+.ben-item-wrap{ border-bottom: 1px solid var(--border); }
+.ben-item-wrap:last-child{ border-bottom: none; }
+.ben-toggle{
+  display:flex; align-items:center; justify-content:space-between; width:100%;
+  background:none; border:none; padding: 11px 0; cursor:pointer; color: var(--text);
+  font-family: var(--font-body); font-size: 0.86rem; text-align:left;
+}
+.ben-toggle .addr{ font-family: var(--font-mono); color: var(--text-dim); }
+.ben-toggle .share{ font-weight:600; display:flex; align-items:center; gap:6px; }
+.ben-caret{ color: var(--text-faint); font-size:0.7rem; transition: transform .2s ease; }
+.ben-toggle[aria-expanded="true"] .ben-caret{ transform: rotate(180deg); }
+.ben-alloc{ display:none; padding: 4px 0 14px 0; }
+.ben-alloc.open{ display:block; }
+.ben-alloc .asset-row{ padding: 8px 0; font-size: 0.82rem; }
+.ben-alloc-note{ font-size: 0.72rem; color: var(--text-faint); margin-top: 8px; line-height:1.5; }
+
+/* activity timeline */
+#activityList{ display:flex; flex-direction:column; }
+.act-item{ display:flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.act-item:last-child{ border-bottom:none; }
+.act-dot{ flex-shrink:0; width:9px; height:9px; border-radius:50%; margin-top:5px; background: var(--accent-2); box-shadow: 0 0 0 3px rgba(255,255,255,0.03); }
+.act-in{ background:#f2f2f0; }
+.act-dep{ background:#7ec89b; }
+.act-wd{ background:#e8b26b; }
+.act-exe{ background: var(--danger); }
+.act-clm{ background:#8fb7e6; }
+.act-cfg{ background: var(--text-faint); }
+.act-body{ flex:1; min-width:0; }
+.act-line{ display:flex; align-items:baseline; justify-content:space-between; gap: 12px; }
+.act-title{ font-size: 0.86rem; font-weight:600; }
+.act-time{ font-size: 0.74rem; color: var(--text-faint); white-space:nowrap; flex-shrink:0; }
+.act-time:hover{ color: var(--accent); }
+.act-detail{ font-size: 0.78rem; color: var(--text-dim); font-family: var(--font-mono); margin-top: 3px; word-break: break-word; }
+
+/* public vault page footnote */
+.vault-foot-note{ text-align:center; color: var(--text-faint); font-size:0.8rem; margin-top: 22px; }
+
 @media (max-width: 720px){
   .field-row{ grid-template-columns: 1fr; }
   .dash-grid{ grid-template-columns: 1fr; }
   .dash-head{ flex-direction: column; }
+  .dash-head-right{ align-self: flex-start; }
   .app-nav-right .net-pill{ display:none; }
   .countdown{ gap: 6px; }
   .cd-block span{ font-size: 1.4rem; }
+  .life-legend .life-last{ margin-left: 0; width:100%; }
 }

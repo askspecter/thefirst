@@ -14,6 +14,7 @@
     return "";
   }
   const { ABI } = CFG;
+  const GS = window.GraveShared;
 
   const el = (id) => document.getElementById(id);
   const PANELS = ["connect", "network", "nofactory", "create", "dashboard"];
@@ -24,6 +25,7 @@
   let chainId = null;
   let vaultAddr = null;
   let cdTimer = null;
+  let lifeData = null;
   let usingAppKit = false;
   const APPKIT_CONFIGURED = !!CFG.WALLETCONNECT_PROJECT_ID;
 
@@ -256,10 +258,11 @@
   /* ------------------------------------------------------------------ */
   async function loadDashboard() {
     const v = new ethers.Contract(vaultAddr, ABI.vault, provider);
-    let owner, dl, executed, expired, bens, tokens;
+    let owner, dl, executed, expired, bens, tokens, lastCheckIn, interval, grace;
     try {
-      [owner, dl, executed, expired, bens, tokens] = await Promise.all([
+      [owner, dl, executed, expired, bens, tokens, lastCheckIn, interval, grace] = await Promise.all([
         v.owner(), v.deadline(), v.executed(), v.isExpired(), v.getBeneficiaries(), v.getTokens(),
+        v.lastCheckIn(), v.checkInInterval(), v.gracePeriod(),
       ]);
     } catch (e) { toast("Could not load vault: " + errMsg(e), { error: true }); return; }
 
@@ -270,30 +273,47 @@
     el("vaultAddrLink").textContent = short(vaultAddr) + "  ↗";
     el("vaultAddrLink").href = addrLink(vaultAddr);
 
-    // status
+    // proof-of-life status + progress bar
+    lifeData = GS.computeLife(lastCheckIn, interval, grace, executed);
+    GS.paintLife({
+      state: el("lifeState"), track: el("lifeTrack"),
+      fillInterval: el("lifeFillInterval"), fillGrace: el("lifeFillGrace"),
+      intervalLbl: el("lifeIntervalLbl"), graceLbl: el("lifeGraceLbl"), lastLbl: el("lifeLastLbl"),
+    }, lifeData);
+
+    // status badge (nav-level)
     const badge = el("statusBadge");
     badge.className = "status-badge";
     if (executed) { badge.textContent = "Executed"; badge.classList.add("executed"); }
     else if (expired) { badge.textContent = "Execution ready"; badge.classList.add("pending"); }
+    else if (lifeData.state === "grace") { badge.textContent = "Grace period"; badge.classList.add("pending"); }
     else { badge.textContent = "Active"; badge.classList.add("active"); }
 
     // countdown
     startCountdown(Number(dl), executed);
     el("cdCaption").textContent = executed
       ? "vault executed — assets are claimable"
-      : (expired ? "grace period elapsed — execution unlocked" : "until execution unlocks");
+      : (expired ? "grace period elapsed — execution unlocked"
+        : (lifeData.state === "grace" ? "grace period — check in now to cancel" : "until execution unlocks"));
 
     // heartbeat actions
     el("checkInBtn").hidden = executed || !(isOwner || guardianFlag);
     el("executeBtn").hidden = executed || !expired;
+    // reminder: owner/guardian, active vault only
+    el("remindBtn").hidden = executed || !(isOwner || guardianFlag);
+    maybeWarnDeadline(lifeData);
 
     // assets
     const ethBal = await provider.getBalance(vaultAddr);
     el("ethBal").textContent = (+ethers.formatEther(ethBal)).toFixed(5) + " ETH";
-    await renderTokens(v, tokens);
+    const tokenData = await loadTokenData(v, tokens);
+    renderTokens(tokenData);
 
-    // beneficiaries
-    renderBeneficiaries(bens);
+    // beneficiaries + estimated per-heir allocations
+    renderBeneficiaries(bens, ethBal, tokenData);
+
+    // activity timeline
+    GS.renderActivity(provider, vaultAddr, el("activityList"));
 
     // deposit card only for owner + active
     el("depositCard").hidden = !isOwner || executed;
@@ -310,31 +330,63 @@
     }
   }
 
-  async function renderTokens(v, tokens) {
-    const list = el("tokenList");
-    list.innerHTML = "";
-    if (!tokens.length) { list.innerHTML = '<div class="muted-row">No RWA tokens deposited yet.</div>'; return; }
+  // Load token metadata + vault balances once, reused for the asset list and
+  // the per-beneficiary allocation preview.
+  async function loadTokenData(v, tokens) {
+    const out = [];
     for (const addr of tokens) {
       const erc = new ethers.Contract(addr, ABI.erc20, provider);
       let sym = short(addr), dec = 18, bal = 0n;
       try { [sym, dec, bal] = await Promise.all([erc.symbol(), erc.decimals(), erc.balanceOf(vaultAddr)]); } catch (_) {}
       const icon = await tokenIcon(addr);
+      out.push({ addr, sym, dec: Number(dec), bal, icon });
+    }
+    return out;
+  }
+
+  function renderTokens(tokenData) {
+    const list = el("tokenList");
+    list.innerHTML = "";
+    if (!tokenData.length) { list.innerHTML = '<div class="muted-row">No RWA tokens deposited yet.</div>'; return; }
+    for (const t of tokenData) {
       const row = document.createElement("div");
       row.className = "asset-row";
-      row.innerHTML = `<span class="asset-left">${tokenAvatar(sym, icon)}<span class="asset-sym">${sym}</span></span><span class="asset-bal">${(+ethers.formatUnits(bal, dec)).toLocaleString(undefined, { maximumFractionDigits: 6 })}</span>`;
+      row.innerHTML = `<span class="asset-left">${tokenAvatar(t.sym, t.icon)}<span class="asset-sym">${t.sym}</span></span><span class="asset-bal">${(+ethers.formatUnits(t.bal, t.dec)).toLocaleString(undefined, { maximumFractionDigits: 6 })}</span>`;
       list.appendChild(row);
     }
   }
 
-  function renderBeneficiaries(bens) {
+  // Beneficiaries with an expandable preview of the estimated share each would
+  // receive at today's balances (bps × balance ÷ 10,000).
+  function renderBeneficiaries(bens, ethBal, tokenData) {
     const list = el("benList");
     list.innerHTML = "";
     bens.forEach((b) => {
       const you = b.account.toLowerCase() === account.toLowerCase();
-      const row = document.createElement("div");
-      row.className = "ben-item";
-      row.innerHTML = `<span class="addr">${short(b.account)}${you ? '<span class="you">you</span>' : ""}</span><span class="share">${(Number(b.bps) / 100)}%</span>`;
-      list.appendChild(row);
+      const bps = Number(b.bps);
+      const item = document.createElement("div");
+      item.className = "ben-item-wrap";
+
+      let preview = `<div class="ben-alloc"><div class="asset-row"><span class="asset-sym">ETH</span><span class="asset-bal">${(+ethers.formatEther(ethBal * BigInt(bps) / 10000n)).toFixed(5)}</span></div>`;
+      for (const t of tokenData) {
+        const share = t.bal * BigInt(bps) / 10000n;
+        preview += `<div class="asset-row"><span class="asset-sym">${t.sym}</span><span class="asset-bal">${(+ethers.formatUnits(share, t.dec)).toLocaleString(undefined, { maximumFractionDigits: 6 })}</span></div>`;
+      }
+      preview += `<p class="ben-alloc-note">Estimated share at today's balance. Fixed by an onchain snapshot at execution.</p></div>`;
+
+      item.innerHTML =
+        `<button type="button" class="ben-item ben-toggle" aria-expanded="false">` +
+          `<span class="addr">${short(b.account)}${you ? '<span class="you">you</span>' : ""}</span>` +
+          `<span class="share">${bps / 100}% <span class="ben-caret">▾</span></span>` +
+        `</button>` + preview;
+
+      const btn = item.querySelector(".ben-toggle");
+      const alloc = item.querySelector(".ben-alloc");
+      btn.addEventListener("click", () => {
+        const open = alloc.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      list.appendChild(item);
     });
   }
 
@@ -482,6 +534,93 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /*  Reminders (check-in) — calendar + browser notification            */
+  /* ------------------------------------------------------------------ */
+  // Static site: no backend, so reminders are a downloadable calendar event
+  // (works with Google/Apple Calendar, which deliver email + push) plus an
+  // optional in-browser notification when the tab is open near the deadline.
+  function publicVaultUrl() {
+    return location.origin + "/app/vault.html?address=" + vaultAddr;
+  }
+
+  async function setReminder() {
+    if (!lifeData) return;
+    // 1) calendar file with two alarms (7d + 1d before grace begins)
+    const ics = GS.buildICS(lifeData.intervalEnd, vaultAddr, publicVaultUrl());
+    GS.downloadICS(ics, "grave-checkin.ics");
+
+    // 2) opt-in browser notifications
+    let notifNote = "";
+    if ("Notification" in window) {
+      try {
+        let perm = Notification.permission;
+        if (perm === "default") perm = await Notification.requestPermission();
+        if (perm === "granted") {
+          localStorage.setItem("grave_remind_" + vaultAddr.toLowerCase(), "1");
+          notifNote = " Browser reminders are on for this device.";
+          scheduleLocalNotif(lifeData);
+        }
+      } catch (_) {}
+    }
+    const hint = el("remindHint");
+    hint.hidden = false;
+    hint.textContent = "Calendar reminder downloaded — add it to Google or Apple Calendar for email + push." + notifNote;
+    toast("Check-in reminder saved.");
+  }
+
+  let localNotifTimer = null;
+  function scheduleLocalNotif(life) {
+    clearTimeout(localNotifTimer);
+    if (Notification.permission !== "granted") return;
+    // fire ~1 day before grace begins, if the tab is still open by then
+    const fireAt = (life.intervalEnd - 86400) * 1000;
+    const delay = fireAt - Date.now();
+    if (delay <= 0 || delay > 2147483647) return; // out of setTimeout range
+    localNotifTimer = setTimeout(() => {
+      try { new Notification("GRAVE — check-in due soon", { body: "Check in to keep your vault active.", icon: "/assets/favicon-64.png" }); } catch (_) {}
+    }, delay);
+  }
+
+  // Warn in-app when the deadline is close (or grace already running).
+  function maybeWarnDeadline(life) {
+    const hint = el("remindHint");
+    if (life.state === "grace") {
+      hint.hidden = false;
+      hint.className = "life-hint warn";
+      hint.textContent = "Grace period is running — check in now to cancel execution.";
+    } else if (life.state === "active") {
+      const secsLeft = life.intervalEnd - life.now;
+      if (secsLeft > 0 && secsLeft < 7 * 86400) {
+        hint.hidden = false;
+        hint.className = "life-hint warn";
+        hint.textContent = "Grace period begins in " + GS.fmtDur(secsLeft) + " — consider checking in.";
+      } else {
+        hint.className = "life-hint";
+      }
+      // resume a scheduled local notification if the user opted in
+      try {
+        if (localStorage.getItem("grave_remind_" + vaultAddr.toLowerCase()) === "1") scheduleLocalNotif(life);
+      } catch (_) {}
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Share (public read-only link)                                     */
+  /* ------------------------------------------------------------------ */
+  async function shareVault() {
+    const url = publicVaultUrl();
+    try {
+      if (navigator.share) { await navigator.share({ title: "GRAVE Vault", url }); return; }
+    } catch (_) { /* user cancelled share sheet */ return; }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Public vault link copied to clipboard.");
+    } catch (_) {
+      toast(url, { timeout: 0 });
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
   /*  Wire up                                                           */
   /* ------------------------------------------------------------------ */
   function init() {
@@ -495,6 +634,8 @@
     el("claimBtn").addEventListener("click", claim);
     el("approveBtn").addEventListener("click", approveToken);
     el("depositBtn").addEventListener("click", depositToken);
+    el("remindBtn").addEventListener("click", setReminder);
+    el("shareBtn").addEventListener("click", shareVault);
     let depTimer;
     el("depToken").addEventListener("input", () => { clearTimeout(depTimer); depTimer = setTimeout(refreshDepToken, 350); });
     let searchTimer;

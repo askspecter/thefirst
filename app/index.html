@@ -124,13 +124,32 @@
           <h1 id="vaultTitle">GRAVE Vault</h1>
           <a class="vault-addr" id="vaultAddrLink" href="#" target="_blank" rel="noopener"></a>
         </div>
-        <span class="status-badge" id="statusBadge">—</span>
+        <div class="dash-head-right">
+          <button class="btn btn-outline btn-sm" id="shareBtn" title="Copy public read-only link">Share</button>
+          <span class="status-badge" id="statusBadge">—</span>
+        </div>
       </div>
 
       <div class="dash-grid">
         <!-- Status / heartbeat -->
         <div class="card card-wide">
-          <div class="card-head"><h3>Proof of Life</h3></div>
+          <div class="card-head life-head">
+            <h3>Proof of Life</h3>
+            <span class="life-state" id="lifeState">—</span>
+          </div>
+
+          <!-- proof-of-life progress bar: interval segment + grace segment -->
+          <div class="life-track" id="lifeTrack" aria-hidden="true">
+            <div class="life-seg life-seg-interval"><span class="life-fill" id="lifeFillInterval"></span></div>
+            <div class="life-seg life-seg-grace"><span class="life-fill life-fill-grace" id="lifeFillGrace"></span></div>
+            <span class="life-marker" id="lifeMarker"></span>
+          </div>
+          <div class="life-legend">
+            <span><i class="dot-interval"></i> Interval <b id="lifeIntervalLbl">—</b></span>
+            <span><i class="dot-grace"></i> Grace <b id="lifeGraceLbl">—</b></span>
+            <span class="life-last">Last check-in <b id="lifeLastLbl">—</b></span>
+          </div>
+
           <div class="countdown" id="countdown">
             <div class="cd-block"><span id="cdDays">--</span><small>days</small></div>
             <div class="cd-block"><span id="cdHours">--</span><small>hrs</small></div>
@@ -138,10 +157,13 @@
             <div class="cd-block"><span id="cdSecs">--</span><small>sec</small></div>
           </div>
           <p class="cd-caption" id="cdCaption">until execution unlocks</p>
+
           <div class="card-actions">
             <button class="btn btn-primary" id="checkInBtn">Check In — I'm alive</button>
             <button class="btn btn-outline" id="executeBtn" hidden>Trigger Execution</button>
+            <button class="btn btn-outline" id="remindBtn" hidden>Set check-in reminder</button>
           </div>
+          <p class="life-hint" id="remindHint" hidden></p>
         </div>
 
         <!-- Assets -->
@@ -186,6 +208,12 @@
           </div>
         </div>
 
+        <!-- Activity timeline -->
+        <div class="card card-wide" id="activityCard">
+          <div class="card-head"><h3>Activity</h3></div>
+          <div id="activityList"><div class="muted-row">Loading activity…</div></div>
+        </div>
+
         <!-- Claim (beneficiary) -->
         <div class="card card-wide" id="claimCard" hidden>
           <div class="card-head"><h3>Your Inheritance</h3></div>
@@ -206,6 +234,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
 <script src="/js/config.js"></script>
+<script src="/js/grave-shared.js"></script>
 <script src="/js/app.js"></script>
 <script type="module" src="/js/wallet.js"></script>
 </body>

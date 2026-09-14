@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRAVE — Vault</title>
+<meta name="description" content="Public read-only view of a GRAVE Vault on Robinhood Chain — status, proof-of-life countdown, beneficiaries, assets, and activity.">
+<link rel="icon" href="/assets/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+
+<!-- ================= NAV ================= -->
+<header class="nav scrolled" id="nav">
+  <div class="nav-inner">
+    <a href="https://grave.cash/" class="brand">
+      <span class="brand-mark" aria-hidden="true"><img src="/assets/logo.png" alt="" width="34" height="34"></span>
+      <span class="brand-name">GRAVE</span>
+    </a>
+    <div class="app-nav-right">
+      <span class="net-pill"><span class="net-dot"></span><span>Robinhood Chain</span></span>
+      <a class="btn btn-primary" href="/app/">Launch App</a>
+    </div>
+  </div>
+</header>
+
+<main class="app-shell">
+  <div class="container">
+
+    <!-- STATE: invalid / missing address -->
+    <section class="panel panel-center" id="panel-invalid" hidden>
+      <div class="panel-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4M12 15.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <h1>Vault not found.</h1>
+      <p class="panel-lead" id="invalidText">No valid vault address in this link.</p>
+      <a href="/app/" class="btn btn-primary btn-lg">Open the App</a>
+    </section>
+
+    <!-- STATE: loading -->
+    <section class="panel panel-center" id="panel-loading">
+      <div class="panel-emblem"><img src="/assets/logo.png" alt="" width="64" height="64"></div>
+      <p class="panel-lead"><span class="spin" style="border-top-color:#f2f2f0;border-color:rgba(255,255,255,.25)"></span> Loading vault…</p>
+    </section>
+
+    <!-- STATE: vault view -->
+    <section class="panel" id="panel-vault" hidden>
+      <div class="panel-head dash-head">
+        <div>
+          <span class="eyebrow">Public Vault · Read-only</span>
+          <h1>GRAVE Vault</h1>
+          <a class="vault-addr" id="vaultAddrLink" href="#" target="_blank" rel="noopener"></a>
+        </div>
+        <div class="dash-head-right">
+          <button class="btn btn-outline btn-sm" id="shareBtn" title="Copy link">Share</button>
+          <span class="status-badge" id="statusBadge">—</span>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <!-- Proof of life -->
+        <div class="card card-wide">
+          <div class="card-head life-head">
+            <h3>Proof of Life</h3>
+            <span class="life-state" id="lifeState">—</span>
+          </div>
+          <div class="life-track" id="lifeTrack" aria-hidden="true">
+            <div class="life-seg life-seg-interval"><span class="life-fill" id="lifeFillInterval"></span></div>
+            <div class="life-seg life-seg-grace"><span class="life-fill life-fill-grace" id="lifeFillGrace"></span></div>
+          </div>
+          <div class="life-legend">
+            <span><i class="dot-interval"></i> Interval <b id="lifeIntervalLbl">—</b></span>
+            <span><i class="dot-grace"></i> Grace <b id="lifeGraceLbl">—</b></span>
+            <span class="life-last">Last check-in <b id="lifeLastLbl">—</b></span>
+          </div>
+          <div class="countdown" id="countdown">
+            <div class="cd-block"><span id="cdDays">--</span><small>days</small></div>
+            <div class="cd-block"><span id="cdHours">--</span><small>hrs</small></div>
+            <div class="cd-block"><span id="cdMins">--</span><small>min</small></div>
+            <div class="cd-block"><span id="cdSecs">--</span><small>sec</small></div>
+          </div>
+          <p class="cd-caption" id="cdCaption">until execution unlocks</p>
+        </div>
+
+        <!-- Assets -->
+        <div class="card">
+          <div class="card-head"><h3>Assets Locked</h3></div>
+          <div class="asset-row"><span class="asset-sym">ETH</span><span class="asset-bal" id="ethBal">—</span></div>
+          <div id="tokenList"></div>
+        </div>
+
+        <!-- Beneficiaries -->
+        <div class="card">
+          <div class="card-head"><h3>Beneficiaries</h3></div>
+          <div id="benList"></div>
+        </div>
+
+        <!-- Activity -->
+        <div class="card card-wide">
+          <div class="card-head"><h3>Activity</h3></div>
+          <div id="activityList"><div class="muted-row">Loading activity…</div></div>
+        </div>
+      </div>
+
+      <p class="vault-foot-note">This is a public, read-only view. Only the vault owner can move funds or check in, from the <a class="toast-link" href="/app/">GRAVE app</a>.</p>
+    </section>
+
+  </div>
+</main>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/grave-shared.js"></script>
+<script src="/js/vault.js"></script>
+</body>
+</html>
