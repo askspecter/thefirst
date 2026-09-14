@@ -5,13 +5,13 @@
     {
       "source": "/",
       "has": [{ "type": "host", "value": "app.grave.cash" }],
-      "destination": "/app/index.html"
+      "destination": "/app"
     },
     {
       "source": "/deploy",
       "has": [{ "type": "host", "value": "app.grave.cash" }],
-      "destination": "/app/deploy.html"
+      "destination": "/app/deploy"
     },
-    { "source": "/", "destination": "/landing.html" }
+    { "source": "/", "destination": "/landing" }
   ]
 }
