@@ -1,0 +1,15 @@
+{
+  "name": "grave-watcher",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Permissionless watcher bot that executes expired GRAVE Vaults on Robinhood Chain.",
+  "scripts": {
+    "start": "node watcher.js",
+    "once": "RUN_ONCE=1 node watcher.js",
+    "dry": "DRY_RUN=1 RUN_ONCE=1 node watcher.js"
+  },
+  "dependencies": {
+    "ethers": "^6.13.4"
+  }
+}

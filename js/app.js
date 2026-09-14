@@ -478,6 +478,37 @@
     } catch (_) { box.hidden = true; }
   }
 
+  // Curated quick-pick chips for popular RWA Stock Tokens (from config).
+  function renderStockShortcuts() {
+    const wrap = el("tokenQuick");
+    if (!wrap) return;
+    const list = CFG.STOCK_TOKENS || [];
+    if (!list.length) { wrap.hidden = true; return; }
+    wrap.innerHTML = "";
+    list.forEach((t) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "token-chip";
+      btn.title = t.name ? `${t.name} (${t.symbol})` : t.symbol;
+      btn.innerHTML = `${tokenAvatar(t.symbol, null)}<span class="tc-sym">${t.symbol}</span>`;
+      btn.addEventListener("click", () => {
+        el("depToken").value = t.address;
+        el("tokenSearch").value = t.symbol;
+        const b = el("tokenResults"); if (b) b.hidden = true;
+        refreshDepToken();
+      });
+      wrap.appendChild(btn);
+      // upgrade the monogram to the real logo when the explorer returns one
+      tokenIcon(t.address).then((icon) => {
+        if (!icon) return;
+        const av = btn.querySelector(".ti-avatar");
+        if (av) av.innerHTML =
+          `<img class="ti-icon" src="${icon}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` +
+          `<span class="ti-mono" style="display:none">${(t.symbol || "?").replace(/[<>]/g, "").slice(0, 3)}</span>`;
+      });
+    });
+  }
+
   let depTokenMeta = null;
   async function refreshDepToken() {
     const addr = el("depToken").value.trim();
@@ -636,6 +667,7 @@
     el("depositBtn").addEventListener("click", depositToken);
     el("remindBtn").addEventListener("click", setReminder);
     el("shareBtn").addEventListener("click", shareVault);
+    renderStockShortcuts();
     let depTimer;
     el("depToken").addEventListener("input", () => { clearTimeout(depTimer); depTimer = setTimeout(refreshDepToken, 350); });
     let searchTimer;

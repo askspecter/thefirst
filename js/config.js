@@ -57,11 +57,22 @@ window.GRAVE_CONFIG = {
     ],
   },
 
-  // Optional curated RWA Stock Token shortcuts shown in the deposit panel.
-  // Any ERC-20 address also works via manual entry. Fill with real token
-  // addresses from the Robinhood Chain explorer.
+  // Curated RWA Stock Token shortcuts shown in the deposit panel. Any ERC-20
+  // address also works via manual entry or the live search. Verified official
+  // "Robinhood Token" assets on Robinhood Chain; logos load from the explorer.
   STOCK_TOKENS: [
-    // { symbol: "AAPLx", address: "0x..." },
+    { symbol: "AAPL",  name: "Apple",       address: "0xaf3d76f1834a1d425780943c99ea8a608f8a93f9" },
+    { symbol: "TSLA",  name: "Tesla",       address: "0x322f0929c4625ed5bad873c95208d54e1c003b2d" },
+    { symbol: "NVDA",  name: "NVIDIA",      address: "0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec" },
+    { symbol: "MSFT",  name: "Microsoft",   address: "0xe93237c50d904957cf27e7b1133b510c669c2e74" },
+    { symbol: "GOOGL", name: "Alphabet",    address: "0x1d45f0d84b83497874cb38560eb9f6d332a8372b" },
+    { symbol: "AMZN",  name: "Amazon",      address: "0x12f190a9f9d7d37a250758b26824b97ce941bf54" },
+    { symbol: "META",  name: "Meta",        address: "0xc0d6457c16cc70d6790dd43521c899c87ce02f35" },
+    { symbol: "NFLX",  name: "Netflix",     address: "0xe0444ef8bf4ed74f74fd73686e2ddf4c1c5591e8" },
+    { symbol: "COIN",  name: "Coinbase",    address: "0x6330d8c3178a418788df01a47479c0ce7ccf450b" },
+    { symbol: "MSTR",  name: "Strategy",    address: "0xec262a75e413fafd0df80480274532c79d42da09" },
+    { symbol: "AMD",   name: "AMD",         address: "0x86923f96303d656e4aa86d9d42d1e57ad2023fdc" },
+    { symbol: "PLTR",  name: "Palantir",    address: "0x894e1ec2d74ffe5aef8dc8a9e84686accb964f2a" },
   ],
 
   ABI: {

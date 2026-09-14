@@ -1,0 +1,34 @@
+name: GRAVE Watcher
+
+# Scans all GRAVE Vaults and executes any that are expired and un-executed.
+# execute() is permissionless and moves no funds to the caller, so the key
+# only needs a little ETH for gas. Set WATCHER_PRIVATE_KEY to go live;
+# without it the run is a dry-run (report only).
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 minutes
+  workflow_dispatch: {}
+
+concurrency:
+  group: grave-watcher
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install deps
+        working-directory: bot
+        run: npm install --no-audit --no-fund
+      - name: Run watcher (one scan)
+        working-directory: bot
+        env:
+          RUN_ONCE: "1"
+          PRIVATE_KEY: ${{ secrets.WATCHER_PRIVATE_KEY }}
+          RPC_URL: ${{ secrets.WATCHER_RPC_URL }}
+        run: node watcher.js
