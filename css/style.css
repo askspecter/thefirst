@@ -588,24 +588,3 @@ img{ max-width:100%; display:block; }
   .cta-actions{ flex-direction:column; width:100%; }
   .cta-actions .btn{ width:100%; }
 }
-
-/* ===================== HERO LIVE $GRAVE TICKER ===================== */
-.hero-ticker{
-  display:inline-flex; align-items:center; gap:12px; flex-wrap:wrap;
-  margin: 22px auto 0; padding: 9px 16px;
-  border:1px solid var(--border); border-radius:999px;
-  background: rgba(255,255,255,0.03);
-  font-family: var(--font-mono); font-size:0.86rem;
-  transition: border-color .2s ease, background .2s ease;
-}
-.hero-ticker:hover{ border-color: var(--border-strong); background: rgba(255,255,255,0.05); }
-.hero-ticker .tk-sym{ font-weight:800; letter-spacing:0.02em; }
-.hero-ticker .tk-price{ color: var(--text); font-weight:600; }
-.hero-ticker .tk-change{ font-weight:600; color: var(--text-faint); }
-.hero-ticker .tk-change.up{ color:#7ec89b; }
-.hero-ticker .tk-change.down{ color:#ff6b6b; }
-.hero-ticker .tk-sep{ width:1px; height:16px; background:var(--border); }
-.hero-ticker .tk-burn{ color: var(--text-dim); display:inline-flex; align-items:center; gap:7px; }
-.hero-ticker .tk-burn b{ color: var(--text); font-weight:700; }
-.hero-ticker .tk-flame{ width:8px; height:8px; border-radius:50%; background:#e88c50; box-shadow:0 0 10px #e88c50; animation: pulseB 1.6s ease-in-out infinite; }
-@keyframes pulseB{ 0%,100%{ opacity:.55; transform:scale(.9);} 50%{ opacity:1; transform:scale(1.25);} }

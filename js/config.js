@@ -41,22 +41,6 @@ window.GRAVE_CONFIG = {
     testnet: "",
   },
 
-  // The official GRAVE protocol token ($GRAVE) on Robinhood Chain.
-  TOKEN: {
-    address: "0x69949143aeb1de079c4c1e1064126128dfa7d8f5",
-    symbol: "GRAVE",
-    name: "Grave",
-    decimals: 18,
-    // GeckoTerminal (live price/volume) — network slug + main pool.
-    gtNetwork: "robinhood",
-    pool: "0xc9322006f6a004e4c44334fb2a0834661aa022a0",
-    // Addresses whose balance counts as permanently burned.
-    burnAddresses: [
-      "0x000000000000000000000000000000000000dEaD",
-      "0x0000000000000000000000000000000000000000",
-    ],
-  },
-
   // Curated RWA Stock Token shortcuts shown in the deposit panel. Any ERC-20
   // address also works via manual entry or the live search. Verified official
   // "Robinhood Token" assets on Robinhood Chain; logos load from the explorer.
